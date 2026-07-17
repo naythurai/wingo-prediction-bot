@@ -6,15 +6,15 @@ from flask import Flask
 import telebot
 
 # ==========================================
-# ဆက်တင်များနှင့် ကိန်းဂဏန်းများ သတ်မှတ်ခြင်း
+# ဆက်တင်များနှင့် Chat ID များ သတ်မှတ်ခြင်း
 # ==========================================
 
-# သင်ပေးထားသော Token နှင့် Group ID အမှန်များဖြစ်ကြပါသည်
 TOKEN = "8877327172:AAEJ5BHMEHRm82a4gBBRkaRmkSmn_IFl7LY"
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
-GROUP_ID = -1003803779601
+# ပို့ပေးရမည့် နေရာ (၂) ခုလုံး၏ ID ကို စာရင်းလုပ်ထားခြင်း
+TARGET_CHATS = [-1003803779601, 5491984866]
 
 HISTORY_STATS = {
     "total_bets": 0,
@@ -25,7 +25,6 @@ HISTORY_STATS = {
     "last_predicted_period": None
 }
 
-# Webhook ကို လုံးဝပိတ်ပြီး Polling စနစ်သို့ ပြောင်းရန် ဖျက်သိမ်းခြင်း
 try:
     bot.remove_webhook()
 except Exception as e:
@@ -41,7 +40,7 @@ def fetch_latest_game_data():
     headers = {
         "Content-Type": "application/json;charset=UTF-8",
         "Accept": "application/json, text/plain, */*",
-        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0MzAwMzUwIiwibmJmIjoiMTc4NDMwMDM1MCIsImV4cCI6IjE3ODQzMDIxNTAiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzE3LzIwMjYgOTo1OToxMCBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQkFCQUYiLCJBbW91bnQiOiIyLjk4IiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI3LzE3LzIwMjYgOToyOToxMCBQTSIsIkxvZ2luSVBBZGRyZXNzIjoiMjQwMDo4NDgwOjMwNDA6NGNlMzoxYzY4OjE0ZmY6ZmU1YTphMDQ5IiwiRGJOdW1iZXIiOiIwIiwiSXN2YWxpZGF0b3IiOiIwIiwiS2V5Q29kZSI6IjQyNSIsIlRva2VuVHlwZSI6IkFjY2Vzc19Ub2tlbiIsIlBob25lVHlwZSI6IjEiLCJVc2VyVHlwZSI6IjAiLCJVc2VyTmFtZTIiOiIiLCJpc3MiOiJqd3RJc3N1ZXIiLCJhdWQiOiJsb3R0ZXJ5VGlja2V0In0.C1-ymWXbf9PPHAEX6u8QB_YAesjrE4vtyrLO4xzHdIc",
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0MzAwMzUwIiwibmJmIjoiMTc4NDMwMDM1MCIsImV4cCI6IjE3ODQzMDIxNTAiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzE3LzIwMjYgOTo1OToxMCBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQkFCQUYiLCJBbW91bnQiOiIyLjk4IiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI3LzE3LzIwMjYgOToyOToxMCBQTSIsIkxvZ2luSVBBZGRyZXNzIjoiMjQwMDo4NDgwOjMwNDA6NGNလMzoxYzY4OjE0ZmY6ZmU1YTphMDQ5IiwiRGJOdW1iZXIiOiIwIiwiSXN2YWxpZGF0b3IiOiIwIiwiS2V5Q29kZSI6IjQyNSIsIlRva2VuVHlwZSI6IkFjY2Vzc19Ub2tlbiIsIlBob25lVHlwZSI6IjEiLCJVc2VyVHlwZSI6IjAiLCJVc2VyTmFtZTIiOiIiLCJpc3MiOiJqd3RJc3N1ZXIiLCJhdWQiOiJsb3R0ZXJ5VGlja2V0In0.C1-ymWXbf9PPHAEX6u8QB_YAesjrE4vtyrLO4xzHdIc",
         "Ar-Origin": "https://www.cklottery.online",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     }
@@ -125,6 +124,7 @@ def generate_custom_formula_prediction():
     HISTORY_STATS["last_predicted_period"] = next_issue
     HISTORY_STATS["last_predicted_size"] = pred_size
 
+    # သင်တောင်းဆိုထားသော ရိုးရှင်းသန့်ရှင်းသည့်ပုံစံ
     msg = f"🔮 **WINGO 1-MIN PREDICTION** 🔮\n"
     msg += f"━━━━━━━━━━━━━━━━━━\n"
     msg += f"🆔 **Period:** `{next_issue}`\n"
@@ -137,7 +137,7 @@ def generate_custom_formula_prediction():
     return msg
 
 # ==========================================
-# အလိုအလျောက် ပို့ပေးမည့် Loop
+# နေရာစုံသို့ အလိုအလျောက် ပို့ပေးမည့် Loop
 # ==========================================
 
 def auto_prediction_sender():
@@ -145,24 +145,28 @@ def auto_prediction_sender():
     while True:
         try:
             prediction = generate_custom_formula_prediction()
-            bot.send_message(GROUP_ID, prediction, parse_mode="Markdown")
-            print("Prediction sent to group successfully via Polling Thread.")
+            
+            # Group ရော၊ Chat ID ထဲကိုပါ For Loop သုံးပြီး တစ်ပြိုင်နက်ပို့ခြင်း
+            for chat_id in TARGET_CHATS:
+                try:
+                    bot.send_message(chat_id, prediction, parse_mode="Markdown")
+                except Exception as send_err:
+                    print(f"Failed sending to {chat_id}: {send_err}")
+                    
+            print("Prediction sent to all target chats successfully.")
         except Exception as e:
             print(f"Loop Error: {e}")
         
         time.sleep(60)
 
-# Render အိပ်မပျော်အောင် dummy server ထားခြင်း
 @app.route("/")
 def index():
-    return "Bot is running on Polling mode.", 200
+    return "Bot is running on multiple chats.", 200
 
 if __name__ == "__main__":
-    # စာအလိုအလျောက်ပို့မည့် Thread ကို စတင်ခြင်း
     sender_thread = Thread(target=auto_prediction_sender)
     sender_thread.daemon = True
     sender_thread.start()
     
-    # Render Port ငြိစွန်းမှုမရှိစေရန် Flask ကို background တွင် run ထားခြင်း
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
