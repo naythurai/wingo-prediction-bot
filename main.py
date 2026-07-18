@@ -2,17 +2,18 @@ import os
 import time
 import requests
 import telebot
+from datetime import datetime
 from threading import Thread
 from flask import Flask
 
 # =====================================================================
-# 1. FLASK APPLICATION (Render Web Service)
+# 1. FLASK APPLICATION
 # =====================================================================
 app = Flask('')
 
 @app.route('/')
 def home():
-    return "AZBT WINGO 1-MIN REALTIME ENGINE IS ACTIVE", 200
+    return "AZBT WINGO 1-MIN ULTRA ENGINE IS ACTIVE", 200
 
 # =====================================================================
 # 2. CONFIGURATION & TOKENS
@@ -22,7 +23,7 @@ CHAT_ID = "5491984866"
 GROUP_ID = "-1003803779601"
 TARGET_URL = "https://ckygjf6r.com/api/webapi/GetNoaverageEmerdList"
 
-AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0MzYwMjEyIiwibmJmIjoiMTc4NDM2MDIxMiIsImV4cCI6IjE3ODQzNjIwMTIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzE4LzIwMjYgMjozNjo1MiBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQkFCQUYiLCJBbW91bnQiOiIyLjk4IiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI3LzE4LzIwMjYgMjowNjo1MiBQTSIsIkxvZ2luSVBBZGRyZXNzIjoiMTAzLjc3LjIxNi40IiwiRGJOdW1iZXIiOiIwIiwiSXN2YWxpZGF0b3IiOiIwIiwiS2V5Q29kZSI6IjQyNiIsIlRva2VuVHlwZSI6IkFjY2Vzc19Ub2tlbiIsIlBob25lVHlwZSI6IjEiLCJVc2VyVHlwZSI6IjAiLCJVc2VyTmFtZTIiOiIiLCJpc3MiOiJqd3RJc3N1ZXIiLCJhdWQiOiJsb3R0ZXJ5VGlja2V0In0.bQcqBudKAlKUp0Qzp3GpIX36bgJvEGF1eFEc53zWUDU"
+AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0MzYwMjEyIiwibmJmIjoiMTc4NDM2MDIxMiIsImV4cCI6IjE3ODQzNjIwMTIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzE4LzIwMjYgMjozNjo1MiBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQkFCQUYiLCJBbW91bnQiOiIy.jk9OJ1dDqgAlKUp0Qzp3GpIX36bgJvEGF1eFEc53zWUDU"
 
 PAYLOAD_DATA = {
     "pageSize": 10, "pageNo": 1, "typeId": 1, "language": 0,
@@ -47,7 +48,7 @@ def send_msg(text):
             print(f"Telegram Send Error: {e}")
 
 # ==========================================
-# 🧠 Formula တွက်ချက်ခြင်း စနစ် (ကွက်တိ)
+# 🧠 Formula တွက်ချက်ခြင်း စနစ်
 # ==========================================
 def calculate_prediction(last_issue_str, last_num):
     try:
@@ -62,7 +63,7 @@ def calculate_prediction(last_issue_str, last_num):
 # ==========================================
 # 3. REALTIME TRACKING ENGINE
 # ==========================================
-def check_and_process():
+def check_and_process(force_send=False):
     global last_issue, losses_count, max_losses, total_wins, total_losses, last_prediction, martingale_index
     
     headers = {
@@ -81,11 +82,11 @@ def check_and_process():
             latest = resp["data"]["list"][0]
             issue, num = latest["issueNumber"], int(latest["number"])
             
-            # 🌟 အလှည့်အသစ် တက်လာပြီဆိုတာနဲ့ ချက်ခြင်း တွက်ချက်ပြီး စာပို့မည်
-            if issue != last_issue:
+            # 🌟 ဆာဗာစတက်ချိန် (သို့) အလှည့်သစ်ပြောင်းချိန်တွင် ချက်ချင်းစာပို့ရန်
+            if issue != last_issue or force_send:
                 actual_outcome = "BIG" if num >= 5 else "SMALL"
                 
-                if last_prediction:
+                if last_prediction and not force_send:
                     if last_prediction == actual_outcome:
                         total_wins += 1; losses_count = 0; martingale_index = 0  
                     else:
@@ -114,14 +115,17 @@ def check_and_process():
                 send_msg(msg)
                 last_issue, last_prediction = issue, pred
     except Exception as e:
-        # API Token သေသွားခဲ့လျှင် သို့မဟုတ် Error တက်လျှင် Log ပြရန်
         print(f"Polling Error: {e}")
 
 def realtime_loop():
     print("AZBT Realtime Polling Engine started...")
+    # 🌟 ဆာဗာ Live ဖြစ်ဖြစ်ချင်း ၃ စက္ကန့်အတွင်း ပထမဆုံး စာတစ်စောင်ကို ဇွတ်ပို့ခိုင်းခြင်း
+    time.sleep(3)
+    check_and_process(force_send=True)
+    
     while True:
         check_and_process()
-        time.sleep(2) # 🌟 ၂ စက္ကန့်တစ်ခါ API ကို စစ်ဆေးနေမည် (အလှည့်ပြောင်းတာနဲ့ စာချက်ခြင်းထွက်ရန်)
+        time.sleep(2) # ၂ စက္ကန့်တစ်ခါ ရလဒ်အသစ်ကို Realtime ထိုင်စောင့်ကြည့်မည်
 
 # =====================================================================
 # 4. STARTING THREADS
