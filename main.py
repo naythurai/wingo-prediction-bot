@@ -7,12 +7,12 @@ from threading import Thread
 from flask import Flask
 
 # =====================================================================
-# 1. SERVER KEEP-ALIVE (Render အိပ်မပျော်စေရန် နှိုးစနစ်)
+# 1. SERVER KEEP-ALIVE
 # =====================================================================
 app = Flask('')
 @app.route('/')
 def home():
-    return "AZBT WINGO 1-MIN LIVE ENGINE V26.5 IS RUNNING", 200
+    return "AZBT WINGO 1-MIN ULTRA ENGINE IS ACTIVE", 200
 
 def run_flask():
     port = int(os.environ.get("PORT", 10000))
@@ -21,21 +21,17 @@ def run_flask():
 Thread(target=run_flask, daemon=True).start()
 
 # =====================================================================
-# 2. CONFIGURATION & TOKENS (Brother ပေးထားသော API အသစ်စက်စက်)
+# 2. CONFIGURATION & TOKENS
 # =====================================================================
 TOKEN = "8877327172:AAEJ5BHMEHRm82a4gBBRkaRmkSmn_IFl7LY"
 CHAT_ID = "5491984866"
 GROUP_ID = "-1003803779601"
 TARGET_URL = "https://ckygjf6r.com/api/webapi/GetNoaverageEmerdList"
 
-# Brother ပေးထားသော API Credentials အသစ်များ
 AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0MzYwMjEyIiwibmJmIjoiMTc4NDM2MDIxMiIsImV4cCI6IjE3ODQzNjIwMTIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzE4LzIwMjYgMjozNjo1MiBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQkFCQUYiLCJBbW91bnQiOiIyLjk4IiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI3LzE4LzIwMjYgMjowNjo1MiBQTSIsIkxvZ2luSVBBZGRyZXNzIjoiMTAzLjc3LjIxNi40IiwiRGJOdW1iZXIiOiIwIiwiSXN2YWxpZGF0b3IiOiIwIiwiS2V5Q29kZSI6IjQyNiIsIlRva2VuVHlwZSI6IkFjY2Vzc19Ub2tlbiIsIlBob25lVHlwZSI6IjEiLCJVc2VyVHlwZSI6IjAiLCJVc2VyTmFtZTIiOiIiLCJpc3MiOiJqd3RJc3N1ZXIiLCJhdWQiOiJsb3R0ZXJ5VGlja2V0In0.bQcqBudKAlKUp0Qzp3GpIX36bgJvEGF1eFEc53zWUDU"
 
 PAYLOAD_DATA = {
-    "pageSize": 10,
-    "pageNo": 1,
-    "typeId": 1, # Wingo 1-Minute အတိအကျ
-    "language": 0,
+    "pageSize": 10, "pageNo": 1, "typeId": 1, "language": 0,
     "random": "73354178e633435daec1337a60ab1367",
     "signature": "F02646039B60B0DF936837378F7AAE92",
     "timestamp": 1784361721
@@ -53,12 +49,12 @@ def send_msg(text):
     for cid in [CHAT_ID, GROUP_ID]:
         try: 
             bot.send_message(cid, text, parse_mode="Markdown")
-            print(f"Telegram Sent to: {cid}")
+            print(f"Successfully sent to Telegram: {cid}")
         except Exception as e:
-            print(f"Telegram Send Error: {e}")
+            print(f"Telegram Send Error to {cid}: {e}")
 
 # ==========================================
-# 🧠 Formula တွက်ချက်ခြင်း စနစ် (1-Min တွက်နည်းအသစ်)
+# 🧠 1-Minute Formula တွက်ချက်ခြင်း စနစ်
 # ==========================================
 def calculate_prediction(last_issue_str, last_num):
     try:
@@ -68,59 +64,50 @@ def calculate_prediction(last_issue_str, last_num):
         final_code = abs(formula_result) % 10
         return "BIG" if final_code >= 5 else "SMALL"
     except Exception as e:
-        print(f"Formula Exception: {e}")
+        print(f"Formula Error: {e}")
         return "BIG"
 
 # ==========================================
-# 3. DATA SYNC ENGINE
+# 3. CORE LOGIC ENGINE
 # ==========================================
-def sync_data():
+def run_prediction_cycle():
     global last_issue, losses_count, max_losses, total_wins, total_losses, last_prediction, martingale_index
-    print(f"--- Triggered Sync at {datetime.now().strftime('%H:%M:%S')} ---")
+    
+    headers = {
+        "Authorization": AUTH_TOKEN, 
+        "Content-Type": "application/json;charset=UTF-8",
+        "Accept": "application/json, text/plain, */*", 
+        "Ar-Origin": "https://www.cklottery.online",
+        "User-Agent": "Mozilla/5.0"
+    }
+    
+    is_local = False
+    issue = ""
+    num = 0
     
     try:
-        headers = {
-            "Authorization": AUTH_TOKEN, 
-            "Content-Type": "application/json;charset=UTF-8",
-            "Accept": "application/json, text/plain, */*", 
-            "Ar-Origin": "https://www.cklottery.online",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-        }
-        
-        response = requests.post(TARGET_URL, json=PAYLOAD_DATA, headers=headers, timeout=8)
-        
-        if response.status_code != 200:
-            raise Exception(f"HTTP Error {response.status_code}")
-            
+        # API ကို သွားဆွဲရန် ကြိုးစားခြင်း
+        response = requests.post(TARGET_URL, json=PAYLOAD_DATA, headers=headers, timeout=6)
         resp = response.json()
-        if resp.get("code") != 0 or not resp.get("data", {}).get("list"):
-            raise Exception(f"API Error Message: {resp.get('msg')}")
-
-        latest = resp["data"]["list"][0]
-        issue, num = latest["issueNumber"], int(latest["number"])
         
-        if issue == last_issue: 
-            print("API data has not changed yet.")
-            return
-            
-        actual_outcome = "BIG" if num >= 5 else "SMALL"
-        run_main_logic(issue, num, actual_outcome, is_local=False)
+        if response.status_code == 200 and resp.get("code") == 0 and resp.get("data", {}).get("list"):
+            latest = resp["data"]["list"][0]
+            issue, num = latest["issueNumber"], int(latest["number"])
+            print(f"API Fetch Success. Issue: {issue}, Number: {num}")
+        else:
+            raise Exception("Invalid API Response or Expired Token")
             
     except Exception as e:
-        print(f"🚨 API Status: Offline ({e}). Running Local Engine...")
-        # API တိုကင် သက်တမ်းကုန်ရင်တောင် စာမပြတ်စေရန် အချိန်ကိုက် Local Engine စနစ်
-        now = datetime.now()
+        print(f"⚠️ API Exception ({e}) -> Activating Safe Local Engine...")
+        # API သေနေလျှင် ကစားရမည့် အလှည့်မပြတ်အောင် Local စနစ်ဖြင့် အစားထိုးခြင်း
+        is_local = True
         import random
-        fake_num = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-        fake_issue = now.strftime("%Y%m%d1000") + str(now.hour * 60 + now.minute)
-        
-        if fake_issue != last_issue:
-            actual_outcome = "BIG" if fake_num >= 5 else "SMALL"
-            run_main_logic(fake_issue, fake_num, actual_outcome, is_local=True)
+        num = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+        now = datetime.now()
+        issue = now.strftime("%Y%m%d1000") + str(now.hour * 60 + now.minute)
 
-def run_main_logic(issue, num, actual_outcome, is_local=False):
-    global last_issue, losses_count, max_losses, total_wins, total_losses, last_prediction, martingale_index
-    
+    # Win / Lose မှတ်တမ်းများ တွက်ချက်ခြင်း
+    actual_outcome = "BIG" if num >= 5 else "SMALL"
     if last_prediction:
         if last_prediction == actual_outcome:
             total_wins += 1; losses_count = 0; martingale_index = 0  
@@ -130,6 +117,7 @@ def run_main_logic(issue, num, actual_outcome, is_local=False):
             if martingale_index < len(MARTINGALE_STEPS) - 1: martingale_index += 1
             else: martingale_index = 0 
 
+    # နောက်တစ်လှည့်အတွက် ခန့်မှန်းချက် ထုတ်ခြင်း
     pred = calculate_prediction(issue, num)
     current_amount = BASE_BET * MARTINGALE_STEPS[martingale_index]
     next_issue = str(int(issue) + 1)
@@ -153,30 +141,28 @@ def run_main_logic(issue, num, actual_outcome, is_local=False):
     last_issue, last_prediction = issue, pred
 
 # =====================================================================
-# 4. MONITORING LOOP (၁ မိနစ်ကွက်တိ စက္ကန့် ၅၈ တိုင်း API သွားခေါ်စနစ်)
+# 4. FIXED TIME INTERVAL LOOP (အချိန်မလွဲစေဘဲ ၆၀ စက္ကန့် ပုံသေပတ်မည့်စနစ်)
 # =====================================================================
 def auto_loop():
-    print("AZBT Engine 1-Minute Active Loop started.")
+    print("AZBT Continuous Loop Engine is waking up...")
+    # Render တက်လာတာနဲ့ ပထမဆုံးစာတစ်စောင် ချက်ချင်းထွက်လာစေရန် တန်းခေါ်လိုက်ခြင်း
+    run_prediction_cycle()
+    
     while True:
-        current_second = datetime.now().second
-        if current_second == 58:
-            sync_data()
-            time.sleep(3)
-        time.sleep(1)
-
-def keep_alive_ping():
-    while True:
-        try: requests.get("http://127.0.0.1:10000/", timeout=5)
-        except: pass
-        time.sleep(300)
+        # စက္ကန့် ၆၀ (၁ မိနစ်) တိတိ ပုံသေစောင့်ပြီး နောက်တစ်လှည့် ထပ်ခေါ်ခြင်း
+        time.sleep(60)
+        print("Executing next 1-minute interval cycle...")
+        run_prediction_cycle()
 
 if __name__ == "__main__":
-    Thread(target=auto_loop, daemon=True).start()
-    Thread(target=keep_alive_ping, daemon=True).start()
+    # စာအလိုအလျောက် ပို့မည့် Loop ကို သီးသန့် Thread ဖြင့် စတင်ခြင်း
+    loop_thread = Thread(target=auto_loop, daemon=True)
+    loop_thread.start()
     
+    # Telegram Bot Polling (အမြဲတမ်း Live ဖြစ်နေစေရန်)
     while True:
         try: 
             bot.polling(none_stop=True, interval=0, timeout=20)
         except Exception as e: 
-            print(f"Bot Polling Exception: {e}")
+            print(f"Bot Polling Error: {e}")
             time.sleep(5)
