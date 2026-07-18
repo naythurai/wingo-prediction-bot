@@ -7,30 +7,33 @@ from threading import Thread
 from flask import Flask
 
 # =====================================================================
-# 1. FLASK APPLICATION
+# 1. FLASK APPLICATION (Render အိပ်မပျော်စေရန်)
 # =====================================================================
 app = Flask('')
 
 @app.route('/')
 def home():
-    return "AZBT WINGO 1-MIN ULTRA ENGINE IS ACTIVE", 200
+    return "AZBT WINGO 1-MIN LIVE ENGINE IS RUNNING", 200
 
 # =====================================================================
-# 2. CONFIGURATION & TOKENS (Token အပြည့်အစုံ ပြန်ဆက်ပေးထားသည်)
+# 2. CONFIGURATION & TOKENS (Brother ပေးထားသော API အသစ်စက်စက်)
 # =====================================================================
 TOKEN = "8877327172:AAEJ5BHMEHRm82a4gBBRkaRmkSmn_IFl7LY"
 CHAT_ID = "5491984866"
 GROUP_ID = "-1003803779601"
 TARGET_URL = "https://ckygjf6r.com/api/webapi/GetNoaverageEmerdList"
 
-# စာလုံးပေါင်း လုံးဝမပြတ်တော့ဘဲ အပြည့်အစုံ ပြန်ပြင်ထားသော Token
-AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0MzYwMjEyIiwibmJmIjoiMTc4NDM2MDIxMiIsImV4cCI6IjxNzg0MzYyMDEyIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9leHBpcmF0aW9uIjoiNy8xOC8yMDI2IDI6MzY6NTIgUE0iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBY2Nlc3NfVG9rZW4iLCJVc2VySWQiOiI0OTUzNzEiLCJVc2VyTmFtZSI6Ijk1OTk2NjUwMjY5NSIsIlVzZXJQaG90byI6IjEiLCJOaWNrTmFtZSI6Ik1lbWJlck5OR0JFCkFGIiwiQW1vdW50IjoiMi45OCIsIkludGVncmFsIjoiMCIsIkxvZ2luTWFyayI6Ikg1IiwiTG9naW5UaW1lIjoiNy8xOC8yMDI2IDI6MDY6NTIgUE0iLCJMb2dpbllQQWRkcmVzcyI6IjEwMy43Ny4yMTYuNCIsIkJiTnVtYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiI0MjYiLCJUb2tlblR5cGUiOiJBY2Nlc3NfVG9rZW4iLCJQaG9uZVR5cGUiOiIxIiwiVXNlclR5cGUiOiIwIiwiVXNlck5hbWUyIjoiIiwiaXNzIjoia妥dElzc3VlciIsImF1ZCI6ImxvdHRlcnlUaWNrZXQifQ.bQcqBudKAlKUp0Qzp3GpIX36bgJvEGF1eFEc53zWUDU"
+# Brother ပေးလိုက်တဲ့ သက်တမ်းရှိ Token အသစ်စက်စက်
+AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0MzY4Mjc4IiwibmJmIjoiMTc4NDM2ODI3OCIsImV4cCI6IjE3ODQzNzAwNzgiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzE4LzIwMjYgNDo1MToxOCBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQkFCQUYiLCJBbW91bnQiOiIy.jk9OJ1dDqgAlKUp0Qzp3GpIX36bgJvEGF1eFEc53zWUDU"
 
 PAYLOAD_DATA = {
-    "pageSize": 10, "pageNo": 1, "typeId": 1, "language": 0,
-    "random": "73354178e633435daec1337a60ab1367",
-    "signature": "F02646039B60B0DF936837378F7AAE92",
-    "timestamp": 1784361721
+    "pageSize": 10,
+    "pageNo": 1,
+    "typeId": 1,
+    "language": 0,
+    "random": "42e331bc2d6d4a438014a4ace2db04f7",
+    "signature": "4036E66D7C67DB284B6B0B0F85A1F8ED",
+    "timestamp": 1784368320
 }
 
 bot = telebot.TeleBot(TOKEN)
@@ -45,12 +48,12 @@ def send_msg(text):
     for cid in [CHAT_ID, GROUP_ID]:
         try: 
             bot.send_message(cid, text, parse_mode="Markdown")
-            print(f"--> Sent successfully to {cid}")
+            print(f"Sent to: {cid}")
         except Exception as e:
-            print(f"--> Telegram Send Fail to {cid}: {e}")
+            print(f"Telegram Error: {e}")
 
 # ==========================================
-# 🧠 Formula တွက်ချက်ခြင်း စနစ်
+# 🧠 Formula တွက်ချက်ခြင်း စနစ် - (Period နောက်ဆုံး ၂ လုံးပေါင်း) - Result
 # ==========================================
 def calculate_prediction(last_issue_str, last_num):
     try:
@@ -90,17 +93,17 @@ def check_and_process(force_send=False):
             issue = str(latest["issueNumber"])
             num = int(latest["number"])
         else:
-            raise Exception("API Auth failed or invalid structure")
+            raise Exception("API Expired or Invalid")
             
     except Exception as e:
-        print(f"API Connect Error ({e}) -> Activating Safe Local Engine...")
+        print(f"API Connecting... ({e}) -> Local Engine Backup Active")
         is_local = True
         import random
         num = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
         now = datetime.now()
         issue = now.strftime("%Y%m%d1000") + str(now.hour * 60 + now.minute)
 
-    # ပထမဆုံးအကြိမ်ဇွတ်ပို့ခြင်း သို့မဟုတ် အလှည့်သစ်တက်လာချိန်တွင် အလုပ်လုပ်ရန်
+    # အလှည့်အသစ်ရောက်ချိန် သို့မဟုတ် ဆာဗာစတက်ချိန်တွင် ချက်ချင်းစာပို့ရန်
     if issue != last_issue or force_send:
         actual_outcome = "BIG" if num >= 5 else "SMALL"
         
@@ -141,17 +144,17 @@ def check_and_process(force_send=False):
         last_issue, last_prediction = issue, pred
 
 def realtime_loop():
-    print("AZBT High-Frequency Polling Engine initialized.")
+    print("AZBT High-Frequency Realtime Engine Initialized...")
     time.sleep(3)
-    # ဆာဗာတက်လာတာနဲ့ ဘာပဲဖြစ်ဖြစ် စာတစ်စောင်အရင်ထွက်အောင် ဇွတ်ခေါ်ခြင်း
+    # ဆာဗာ Live ဖြစ်တာနဲ့ စာချက်ချင်းထွက်အောင် ဇွတ်ပို့ခိုင်းခြင်း
     check_and_process(force_send=True)
     
     while True:
         check_and_process()
-        time.sleep(2) # ၂ စက္ကန့်တစ်ခါ ရလဒ်အပြောင်းအလဲကို ထိုင်စောင့်မည်
+        time.sleep(2) # ၂ စက္ကန့်တစ်ခါ ရလဒ်အသစ်ကို စောင့်ကြည့်စစ်ဆေးမည်
 
 # =====================================================================
-# 4. STARTING ENGINE
+# 4. START RUNNING
 # =====================================================================
 Thread(target=realtime_loop, daemon=True).start()
 
