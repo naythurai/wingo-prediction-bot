@@ -7,18 +7,13 @@ from threading import Thread
 from flask import Flask
 
 # =====================================================================
-# 1. SERVER KEEP-ALIVE
+# 1. FLASK APPLICATION (Render Web Service အတွက်)
 # =====================================================================
 app = Flask('')
+
 @app.route('/')
 def home():
     return "AZBT WINGO 1-MIN ULTRA ENGINE IS ACTIVE", 200
-
-def run_flask():
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
-
-Thread(target=run_flask, daemon=True).start()
 
 # =====================================================================
 # 2. CONFIGURATION & TOKENS
@@ -49,12 +44,12 @@ def send_msg(text):
     for cid in [CHAT_ID, GROUP_ID]:
         try: 
             bot.send_message(cid, text, parse_mode="Markdown")
-            print(f"Successfully sent to Telegram: {cid}")
+            print(f"Sent to Telegram Chat ID: {cid}")
         except Exception as e:
-            print(f"Telegram Send Error to {cid}: {e}")
+            print(f"Telegram Send Error: {e}")
 
 # ==========================================
-# 🧠 1-Minute Formula တွက်ချက်ခြင်း စနစ်
+# 🧠 Formula တွက်ချက်ခြင်း စနစ်
 # ==========================================
 def calculate_prediction(last_issue_str, last_num):
     try:
@@ -64,11 +59,10 @@ def calculate_prediction(last_issue_str, last_num):
         final_code = abs(formula_result) % 10
         return "BIG" if final_code >= 5 else "SMALL"
     except Exception as e:
-        print(f"Formula Error: {e}")
         return "BIG"
 
 # ==========================================
-# 3. CORE LOGIC ENGINE
+# 3. CORE LOGIC ENGINE (၁ မိနစ်ပြည့်တိုင်း ပတ်မည့်အပိုင်း)
 # ==========================================
 def run_prediction_cycle():
     global last_issue, losses_count, max_losses, total_wins, total_losses, last_prediction, martingale_index
@@ -86,27 +80,22 @@ def run_prediction_cycle():
     num = 0
     
     try:
-        # API ကို သွားဆွဲရန် ကြိုးစားခြင်း
         response = requests.post(TARGET_URL, json=PAYLOAD_DATA, headers=headers, timeout=6)
         resp = response.json()
         
         if response.status_code == 200 and resp.get("code") == 0 and resp.get("data", {}).get("list"):
             latest = resp["data"]["list"][0]
             issue, num = latest["issueNumber"], int(latest["number"])
-            print(f"API Fetch Success. Issue: {issue}, Number: {num}")
         else:
-            raise Exception("Invalid API Response or Expired Token")
+            raise Exception("API Fail or Token Expired")
             
     except Exception as e:
-        print(f"⚠️ API Exception ({e}) -> Activating Safe Local Engine...")
-        # API သေနေလျှင် ကစားရမည့် အလှည့်မပြတ်အောင် Local စနစ်ဖြင့် အစားထိုးခြင်း
         is_local = True
         import random
         num = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
         now = datetime.now()
         issue = now.strftime("%Y%m%d1000") + str(now.hour * 60 + now.minute)
 
-    # Win / Lose မှတ်တမ်းများ တွက်ချက်ခြင်း
     actual_outcome = "BIG" if num >= 5 else "SMALL"
     if last_prediction:
         if last_prediction == actual_outcome:
@@ -117,7 +106,6 @@ def run_prediction_cycle():
             if martingale_index < len(MARTINGALE_STEPS) - 1: martingale_index += 1
             else: martingale_index = 0 
 
-    # နောက်တစ်လှည့်အတွက် ခန့်မှန်းချက် ထုတ်ခြင်း
     pred = calculate_prediction(issue, num)
     current_amount = BASE_BET * MARTINGALE_STEPS[martingale_index]
     next_issue = str(int(issue) + 1)
@@ -140,29 +128,25 @@ def run_prediction_cycle():
     send_msg(msg)
     last_issue, last_prediction = issue, pred
 
-# =====================================================================
-# 4. FIXED TIME INTERVAL LOOP (အချိန်မလွဲစေဘဲ ၆၀ စက္ကန့် ပုံသေပတ်မည့်စနစ်)
-# =====================================================================
 def auto_loop():
-    print("AZBT Continuous Loop Engine is waking up...")
-    # Render တက်လာတာနဲ့ ပထမဆုံးစာတစ်စောင် ချက်ချင်းထွက်လာစေရန် တန်းခေါ်လိုက်ခြင်း
+    print("AZBT Background Loop Engine started...")
+    # Render စတက်တက်ချင်း စာတစ်စောင် ချက်ချင်းထွက်လာစေရန်
+    time.sleep(5)
     run_prediction_cycle()
     
     while True:
-        # စက္ကန့် ၆၀ (၁ မိနစ်) တိတိ ပုံသေစောင့်ပြီး နောက်တစ်လှည့် ထပ်ခေါ်ခြင်း
-        time.sleep(60)
-        print("Executing next 1-minute interval cycle...")
+        time.sleep(60) # ၁ မိနစ် (စက္ကန့် ၆၀) တိတိ ပုံသေပတ်မည့်စနစ်
         run_prediction_cycle()
 
+# =====================================================================
+# 4. STARTING THREADS (Port မတိုက်အောင် အဓိကပြင်ဆင်မှု)
+# =====================================================================
+# Background Loop ကို သီးသန့် မောင်းနှင်ခြင်း
+loop_thread = Thread(target=auto_loop, daemon=True)
+loop_thread.start()
+
+# Render က Gunicorn နဲ့ လှမ်းခေါ်နိုင်အောင် app အား အသင့်ပြင်ထားခြင်း (app.run ကို ဖျက်လိုက်ပါပြီ)
 if __name__ == "__main__":
-    # စာအလိုအလျောက် ပို့မည့် Loop ကို သီးသန့် Thread ဖြင့် စတင်ခြင်း
-    loop_thread = Thread(target=auto_loop, daemon=True)
-    loop_thread.start()
-    
-    # Telegram Bot Polling (အမြဲတမ်း Live ဖြစ်နေစေရန်)
-    while True:
-        try: 
-            bot.polling(none_stop=True, interval=0, timeout=20)
-        except Exception as e: 
-            print(f"Bot Polling Error: {e}")
-            time.sleep(5)
+    # Local မှာ စမ်းသပ်လိုပါက သုံးရန်သာ
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
