@@ -15,23 +15,25 @@ def home():
     return "AZBT WINGO 1-MIN PURE REAL ENGINE ACTIVE", 200
 
 # =====================================================================
-# 2. CONFIGURATION & TOKENS (Pure Real API Settings)
+# 2. CONFIGURATION & TOKENS (Brother ပေးထားသော အသစ်စက်စက် Payload)
 # =====================================================================
 TOKEN = "8877327172:AAEJ5BHMEHRm82a4gBBRkaRmkSmn_IFl7LY"
 CHAT_ID = "5491984866"
 GROUP_ID = "-1003803779601"
 TARGET_URL = "https://ckygjf6r.com/api/webapi/GetNoaverageEmerdList"
 
+# လက်ရှိ ပေးထားသော Token
 AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0Mzc2MjczIiwibmJmIjoiMTc4NDMzc2I3MyIsImV4cCI6IjE3ODQzNzgwNzMiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzE4LzIwMjYgNzowNDozMyBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQkFCQUYiLCJBbW91bnQiOiIyMS4zNyIsIkludGVncmFsIjoiMCIsIkxvZ2luTWFyayI6Ikg1IiwiTG9naW5UaW1lIjoiNy8xOC8yMDI2IDY6MzQ6MzMgUE0iLCJMb2dpbklQQWRkcmVzcyI6IjgyLjIxLjg0LjE4NSIsIkRiTnVtYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiI0MjkiLCJUb2tlblR5cGUiOiJBY2Nlc3NfVG9rZW4iLCJQaG9uZVR5cGUiOiIxIiwiVXNlclR5cGUiOiIwIiwiVXNlck5hbWUyIjoiIiwiaXNzIjoiand0SXNzdWVyIiwiYXVkIjoibG90dGVyeVRpY2tldCJ9.qeMNVOajJv7YJLOInohzNLMamQmB-47WMf18NZRPzeM"
 
+# 🌟 Brother အခုလေးတင် ပေးလိုက်တဲ့ Request Data အသစ်စက်စက်
 PAYLOAD_DATA = {
     "pageSize": 10,
     "pageNo": 1,
     "typeId": 1,
     "language": 0,
-    "random": "9594f25bd624446aa0c42cb334b84ff8",
-    "signature": "24C1156EFA47FC20560795B24C745537",
-    "timestamp": 1784376300
+    "random": "6939584cb0f94d7ca32f82a349ed7ea5",
+    "signature": "8CFEA18F85492F5379E92D31A1AAED45",
+    "timestamp": 1784377319
 }
 
 bot = telebot.TeleBot(TOKEN)
@@ -80,7 +82,7 @@ def check_and_process():
         response = requests.post(TARGET_URL, json=PAYLOAD_DATA, headers=headers, timeout=6)
         resp = response.json()
         
-        # API Response အောင်မြင်ပြီး ဒေတာအစစ် ပါလာမှသာ အလုပ်လုပ်မည်
+        # API Response အောင်မြင်ပြီး ဒေတာအစစ် တကယ်ပါလာမှသာ အလုပ်လုပ်မည်
         if response.status_code == 200 and resp.get("code") == 0 and resp.get("data", {}).get("list"):
             latest = resp["data"]["list"][0]
             issue = str(latest["issueNumber"])
@@ -119,15 +121,15 @@ def check_and_process():
                 send_msg(msg)
                 last_issue, last_prediction = issue, pred
         else:
-            print("API Error: Real Data မရရှိနိုင်ပါ။ (Token သေဆုံးနေခြင်း သို့မဟုတ် Response မှားယွင်းခြင်း)")
+            print("API Waiting: ဒေတာအစစ် မရသေးပါ။ Token သက်တမ်းကုန်နေနိုင်ပါသည်။")
     except Exception as e:
         print(f"Network Connection Error: {e}")
 
 def realtime_loop():
-    print("AZBT Pure Real Engine Started (No Local Fix Mode)...")
+    print("AZBT Pure Real Engine Running (No Local Fix Mode)...")
     while True:
         check_and_process()
-        time.sleep(1.5) # ၁.၅ စက္ကန့်တစ်ခါ API ဆီက ဒေတာအစစ်ကိုပဲ ထိုင်စောင့်ကြည့်မည်
+        time.sleep(1.5) # ၁.၅ စက္ကန့်တစ်ခါ API ဆီက ဒေတာအစစ်ကိုပဲ စစ်ဆေးမည်
 
 # =====================================================================
 # 4. RUN ENGINE
