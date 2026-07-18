@@ -2,6 +2,7 @@ import os
 import time
 import requests
 import telebot
+from datetime import datetime
 from threading import Thread
 from flask import Flask
 
@@ -15,26 +16,14 @@ def home():
     return "AZBT WINGO 1-MIN PURE REAL ENGINE ACTIVE", 200
 
 # =====================================================================
-# 2. CONFIGURATION & TOKENS (Brother ပေးထားသော အသစ်စက်စက် Payload)
+# 2. CONFIGURATION & TOKENS
 # =====================================================================
 TOKEN = "8877327172:AAEJ5BHMEHRm82a4gBBRkaRmkSmn_IFl7LY"
 CHAT_ID = "5491984866"
 GROUP_ID = "-1003803779601"
 TARGET_URL = "https://ckygjf6r.com/api/webapi/GetNoaverageEmerdList"
 
-# လက်ရှိ ပေးထားသော Token
-AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0Mzc2MjczIiwibmJmIjoiMTc4NDMzc2I3MyIsImV4cCI6IjE3ODQzNzgwNzMiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzE4LzIwMjYgNzowNDozMyBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQkFCQUYiLCJBbW91bnQiOiIyMS4zNyIsIkludGVncmFsIjoiMCIsIkxvZ2luTWFyayI6Ikg1IiwiTG9naW5UaW1lIjoiNy8xOC8yMDI2IDY6MzQ6MzMgUE0iLCJMb2dpbklQQWRkcmVzcyI6IjgyLjIxLjg0LjE4NSIsIkRiTnVtYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiI0MjkiLCJUb2tlblR5cGUiOiJBY2Nlc3NfVG9rZW4iLCJQaG9uZVR5cGUiOiIxIiwiVXNlclR5cGUiOiIwIiwiVXNlck5hbWUyIjoiIiwiaXNzIjoiand0SXNzdWVyIiwiYXVkIjoibG90dGVyeVRpY2tldCJ9.qeMNVOajJv7YJLOInohzNLMamQmB-47WMf18NZRPzeM"
-
-# 🌟 Brother အခုလေးတင် ပေးလိုက်တဲ့ Request Data အသစ်စက်စက်
-PAYLOAD_DATA = {
-    "pageSize": 10,
-    "pageNo": 1,
-    "typeId": 1,
-    "language": 0,
-    "random": "6939584cb0f94d7ca32f82a349ed7ea5",
-    "signature": "8CFEA18F85492F5379E92D31A1AAED45",
-    "timestamp": 1784377319
-}
+AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0Mzc2MjczIiwibmJmIjoiMTc4NDMzc2I3MyIsImV4cCI6IjE3ODQzNzgwNzMiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzE4LzIwMjYgNzowNDozMyBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQkFCQUYiLCJBbW91bnQiOiIyMS4zNyIsIkludGVncmFsIjoiMCIsIkxvZ2luTWFyayI6Ikg1IiwiTG9naW5UaW1lIjoiNy8xOC8yMDI2IDY6MzQ6MzMgUE0iLCJMb2dpbklQQWRkcmVzcyI6IjgyLjIxLjg0LjE4NSIsIkRiTnVuYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiI0MjkiLCJUb2tlblR5cGUiOiJBY2Nlc3NfVG9rZW4iLCJQaG9uZVR5cGUiOiIxIiwiVXNlclR5cGUiOiIwIiwiVXNlck5hbWUyIjoiIiwiaXNzIjoiand0SXNzdWVyIiwiYXVkIjoibG90dGVyeVRpY2tldCJ9.qeMNVOajJv7YJLOInohzNLMamQmB-47WMf18NZRPzeM"
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -65,7 +54,7 @@ def calculate_prediction(last_issue_str, last_num):
         return "BIG"
 
 # ==========================================
-# 3. PURE REALTIME ENGINE (No Fake, No Fix)
+# 3. PURE REALTIME ENGINE
 # ==========================================
 def check_and_process():
     global last_issue, losses_count, max_losses, total_wins, total_losses, last_prediction, martingale_index
@@ -78,17 +67,28 @@ def check_and_process():
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     }
     
+    # 🌟 Realtime လက်ရှိအချိန်အတိုင်း Dynamic ထွက်အောင် ပြုလုပ်ခြင်း
+    current_timestamp = int(time.time())
+    
+    payload = {
+        "pageSize": 10,
+        "pageNo": 1,
+        "typeId": 1,
+        "language": 0,
+        "random": "6939584cb0f94d7ca32f82a349ed7ea5",
+        "signature": "8CFEA18F85492F5379E92D31A1AAED45",
+        "timestamp": current_timestamp  # 🌟 Dynamic ဖြစ်သွားပါပြီ
+    }
+    
     try:
-        response = requests.post(TARGET_URL, json=PAYLOAD_DATA, headers=headers, timeout=6)
+        response = requests.post(TARGET_URL, json=payload, headers=headers, timeout=6)
         resp = response.json()
         
-        # API Response အောင်မြင်ပြီး ဒေတာအစစ် တကယ်ပါလာမှသာ အလုပ်လုပ်မည်
         if response.status_code == 200 and resp.get("code") == 0 and resp.get("data", {}).get("list"):
             latest = resp["data"]["list"][0]
             issue = str(latest["issueNumber"])
             num = int(latest["number"])
             
-            # ဂိမ်းထဲမှာ အလှည့်အသစ် တကယ်ပြောင်းသွားမှသာ စာပို့မည်
             if issue != last_issue:
                 actual_outcome = "BIG" if num >= 5 else "SMALL"
                 
@@ -121,15 +121,15 @@ def check_and_process():
                 send_msg(msg)
                 last_issue, last_prediction = issue, pred
         else:
-            print("API Waiting: ဒေတာအစစ် မရသေးပါ။ Token သက်တမ်းကုန်နေနိုင်ပါသည်။")
+            print("API Rejection: Token Expired Or Signature Mismatch.")
     except Exception as e:
-        print(f"Network Connection Error: {e}")
+        print(f"Connection Error: {e}")
 
 def realtime_loop():
-    print("AZBT Pure Real Engine Running (No Local Fix Mode)...")
+    print("AZBT Pure Real Engine Running...")
     while True:
         check_and_process()
-        time.sleep(1.5) # ၁.၅ စက္ကန့်တစ်ခါ API ဆီက ဒေတာအစစ်ကိုပဲ စစ်ဆေးမည်
+        time.sleep(1.5)
 
 # =====================================================================
 # 4. RUN ENGINE
