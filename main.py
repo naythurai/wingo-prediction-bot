@@ -35,28 +35,30 @@ def send_welcome(message):
     bot.reply_to(message, "✅ Wingo AI Predictor Pro အွန်လိုင်းပေါ် ရောက်ရှိနေပါပြီ။")
 
 # ==========================================
-# ဂိမ်းဆာဗာမှ API Data ဆွဲယူခြင်း (တရုတ်စာလုံး အမှား ပြင်ဆင်ပြီး)
+# ဂိမ်းဆာဗာမှ API Data ဆွဲယူခြင်း (ဒေတာအသစ်စက်စက်)
 # ==========================================
 
 def fetch_latest_game_data():
     url = "https://ckygjf6r.com/api/webapi/GetNoaverageEmerdList"
     
+    # သင်ပေးထားသော Headers အသစ်
     headers = {
         "Content-Type": "application/json;charset=UTF-8",
         "Accept": "application/json, text/plain, */*",
-        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0MzAwMzUwIiwibmJmIjoiMTc4NDMwMDM1MCIsImV4cCI6IjE3ODQzMDIxNTAiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBY2Nlc3NfVG9rZW4iLCJVc2VySWQiOiI0ActiveNzM3MSIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQkFCQUYiLCJBbW91bnQiOiIyLjk4IiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI3LzE3LzIwMjYgOToyOToxMCBQTSIsIkxvZ2luSVBBZGRyZXNzIjoiMjQwMDo4NDgwOjMwNDA6NGNlMzoxYzY4OjE0ZmY6ZmU1YTphMDQ5IiwiRGJOdW1iZXIiOiIwIiwiSXN2YWxpZGF0b3IiOiIwIiwiS2V5Q29kZSI6IjQyNSIsIlRva2VuVHlwZSI6IkFjY2Vzc19Ub2tlbiIsIlBob25lVHlwZSI6IjEiLCJVc2VyVHlwZSI6IjAiLCJVc2VyTmFtZTIiOiIiLCJpc3MiOiJqd3RJc3N1ZXIiLCJhdWQiOiJsb3R0ZXJ5VGlja2V0In0.C1-ymWXbf9PPHAEX6u8QB_YAesjrE4vtyrLO4xzHdIc",
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0MzYwMjEyIiwibmJmIjoiMTc4NDM2MDIxMiIsImV4cCI6IjE3ODQzNjIwMTIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzE4LzIwMjYgMjozNjo1MiBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQkFCQUYiLCJBbW91bnQiOiIyLjk4IiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI3LzE4LzIwMjYgMjowNjo1MiBQTSIsIkxvZ2luSVBBZGRyZXNzIjoiMTAzLjc3LjIxNi40IiwiRGJOdW1iZXIiOiIwIiwiSXN2YWxpZGF0b3IiOiIwIiwiS2V5Q29kZSI6IjQyNiIsIlRva2VuVHlwZSI6IkFjY2Vzc19Ub2tlbiIsIlBob25lVHlwZSI6IjEiLCJVc2VyVHlwZSI6IjAiLCJVc2VyTmFtZTIiOiIiLCJpc3MiOiJqd3RJc3N1ZXIiLCJhdWQiOiJsb3R0ZXJ5VGlja2V0In0.bQcqBudKAlKUp0Qzp3GpIX36bgJvEGF1eFEc53zWUDU",
         "Ar-Origin": "https://www.cklottery.online",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     }
     
+    # သင်ပေးထားသော Payload အချက်အလက်အသစ်
     payload = {
         "pageSize": 10,
         "pageNo": 1,
         "typeId": 1,
         "language": 0,
-        "random": "6cea9e6f240e45d69ace907d6756ad79",
-        "signature": "912609C0C714A114DD7FB311BCEB5B7D",
-        "timestamp": 1784300353
+        "random": "a5baaec6b5574ed18b2a6aef3bd6e0a2",
+        "signature": "B885465CC3B958D74268260A9AC5F041",
+        "timestamp": 1784360280
     }
     
     try:
@@ -71,14 +73,13 @@ def fetch_latest_game_data():
         return None
 
 # ==========================================
-# Formula တွက်ချက်ခြင်း
+# Formula တွက်ချက်ခြင်း (Logic အမှန်ပြင်ဆင်ပြီး)
 # ==========================================
 
 def generate_custom_formula_prediction():
     global HISTORY_STATS
     game_list = fetch_latest_game_data()
     
-    # API ပျက်ခဲ့ရင်လည်း Bot မရပ်သွားအောင် ကာကွယ်ခြင်း
     if not game_list:
         import random
         last_num = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
@@ -90,7 +91,8 @@ def generate_custom_formula_prediction():
         last_num = int(latest_game["number"])    
         actual_size = "BIG" if last_num >= 5 else "SMALL"
     
-    win_lose_status = "Waiting..."
+    # ၁။ Win / Lose စစ်ဆေးခြင်း (ယခင်ခန့်မှန်းချက်နှင့် ယခုထွက်လာသော Result ကို တိုက်စစ်ခြင်း)
+    win_lose_status = "Waiting... ⏳"
     if HISTORY_STATS["last_predicted_period"] == last_issue:
         HISTORY_STATS["total_bets"] += 1
         if HISTORY_STATS["last_predicted_size"] == actual_size:
@@ -108,11 +110,13 @@ def generate_custom_formula_prediction():
     else:
         winrate = 100
 
+    # ၂။ လာမည့်အလှည့်အမှန်ကို သတ်မှတ်ခြင်း (last_issue + 1)
     try:
         next_issue = str(int(last_issue) + 1)
     except:
         next_issue = "Next Period"
         
+    # ၃။ ပုံသေနည်းအတိုင်း တွက်ချက်ခြင်း (Period နောက်ဆုံး ၂ လုံးပေါင်း - Result)
     try:
         last_two_digits = last_issue[-2:]  
         digit1 = int(last_two_digits[0])   
@@ -126,14 +130,17 @@ def generate_custom_formula_prediction():
         import random
         pred_size = random.choice(["BIG", "SMALL"])
 
+    # နောက်တစ်လှည့်မှာ ပြန်တိုက်စစ်နိုင်ရန် ယခုခန့်မှန်းချက်ကို သိမ်းဆည်းခြင်း
     HISTORY_STATS["last_predicted_period"] = next_issue
     HISTORY_STATS["last_predicted_size"] = pred_size
 
+    # မက်ဆေ့ခ်ျ ပုံစံတကျ ထုတ်ပြန်ခြင်း
     msg = f"🔮 **WINGO 1-MIN PREDICTION** 🔮\n"
     msg += f"━━━━━━━━━━━━━━━━━━\n"
-    msg += f"🆔 **Period:** `{next_issue}`\n"
-    msg += f"🎰 **Result:** `{last_num}` ({actual_size})\n"
-    msg += f"🎯 **Bet:** **{pred_size}**\n"
+    msg += f"🆔 **Next Period (ထိုးရမည့်အလှည့်):** `{next_issue}`\n"
+    msg += f"🎯 **Bet (ခန့်မှန်းချက်):** **{pred_size}**\n"
+    msg += f"━━━━━━━━━━━━━━━━━━\n"
+    msg += f"🎰 **Last Result (ပြီးခဲ့သည့်ရလဒ်):** `{last_issue}` -> `{last_num}` ({actual_size})\n"
     msg += f"📊 **Win/Lose:** {win_lose_status}\n"
     msg += f"📉 **Max Lose:** {HISTORY_STATS['max_lose_streak']}\n"
     msg += f"📈 **Winrate:** {winrate}%\n"
@@ -154,7 +161,7 @@ def auto_prediction_sender():
                     bot.send_message(chat_id, prediction, parse_mode="Markdown")
                 except Exception as send_err:
                     print(f"Failed sending to {chat_id}: {send_err}")
-            print("Prediction broadcasted successfully.")
+            print("Prediction broadcasted successfully with updated API.")
         except Exception as e:
             print(f"Loop Error: {e}")
         
