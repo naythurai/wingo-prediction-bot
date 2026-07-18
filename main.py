@@ -2,18 +2,17 @@ import os
 import time
 import requests
 import telebot
-from datetime import datetime
 from threading import Thread
 from flask import Flask
 
 # =====================================================================
-# 1. FLASK APPLICATION (Render Web Service အတွက်)
+# 1. FLASK APPLICATION (Render Web Service)
 # =====================================================================
 app = Flask('')
 
 @app.route('/')
 def home():
-    return "AZBT WINGO 1-MIN ULTRA ENGINE IS ACTIVE", 200
+    return "AZBT WINGO 1-MIN REALTIME ENGINE IS ACTIVE", 200
 
 # =====================================================================
 # 2. CONFIGURATION & TOKENS
@@ -44,12 +43,11 @@ def send_msg(text):
     for cid in [CHAT_ID, GROUP_ID]:
         try: 
             bot.send_message(cid, text, parse_mode="Markdown")
-            print(f"Sent to Telegram Chat ID: {cid}")
         except Exception as e:
             print(f"Telegram Send Error: {e}")
 
 # ==========================================
-# 🧠 Formula တွက်ချက်ခြင်း စနစ်
+# 🧠 Formula တွက်ချက်ခြင်း စနစ် (ကွက်တိ)
 # ==========================================
 def calculate_prediction(last_issue_str, last_num):
     try:
@@ -58,13 +56,13 @@ def calculate_prediction(last_issue_str, last_num):
         formula_result = sum_digits - last_num
         final_code = abs(formula_result) % 10
         return "BIG" if final_code >= 5 else "SMALL"
-    except Exception as e:
+    except:
         return "BIG"
 
 # ==========================================
-# 3. CORE LOGIC ENGINE (၁ မိနစ်ပြည့်တိုင်း ပတ်မည့်အပိုင်း)
+# 3. REALTIME TRACKING ENGINE
 # ==========================================
-def run_prediction_cycle():
+def check_and_process():
     global last_issue, losses_count, max_losses, total_wins, total_losses, last_prediction, martingale_index
     
     headers = {
@@ -75,78 +73,61 @@ def run_prediction_cycle():
         "User-Agent": "Mozilla/5.0"
     }
     
-    is_local = False
-    issue = ""
-    num = 0
-    
     try:
-        response = requests.post(TARGET_URL, json=PAYLOAD_DATA, headers=headers, timeout=6)
+        response = requests.post(TARGET_URL, json=PAYLOAD_DATA, headers=headers, timeout=4)
         resp = response.json()
         
         if response.status_code == 200 and resp.get("code") == 0 and resp.get("data", {}).get("list"):
             latest = resp["data"]["list"][0]
             issue, num = latest["issueNumber"], int(latest["number"])
-        else:
-            raise Exception("API Fail or Token Expired")
             
+            # 🌟 အလှည့်အသစ် တက်လာပြီဆိုတာနဲ့ ချက်ခြင်း တွက်ချက်ပြီး စာပို့မည်
+            if issue != last_issue:
+                actual_outcome = "BIG" if num >= 5 else "SMALL"
+                
+                if last_prediction:
+                    if last_prediction == actual_outcome:
+                        total_wins += 1; losses_count = 0; martingale_index = 0  
+                    else:
+                        total_losses += 1; losses_count += 1
+                        if losses_count > max_losses: max_losses = losses_count
+                        if martingale_index < len(MARTINGALE_STEPS) - 1: martingale_index += 1
+                        else: martingale_index = 0 
+
+                pred = calculate_prediction(issue, num)
+                current_amount = BASE_BET * MARTINGALE_STEPS[martingale_index]
+                next_issue = str(int(issue) + 1)
+                win_rate = (total_wins / (total_wins + total_losses) * 100) if (total_wins + total_losses) > 0 else 100
+                
+                msg = (f"🔮 **WINGO 1-MIN PREDICTION** 🔮\n"
+                       f"━━━━━━━━━━━━━━━━━━\n"
+                       f"🆔 **Next Period:** `{next_issue}`\n"
+                       f"🎯 **Bet (ခန့်မှန်းချက်):** **{pred}**\n"
+                       f"━━━━━━━━━━━━━━━━━━\n"
+                       f"🎰 **Last Result:** `{issue}` -> `{num}` ({actual_outcome})\n"
+                       f"📊 **Win/Lose:** " + ("🟢 WIN" if losses_count == 0 and total_wins > 0 else "🔴 LOSE" if losses_count > 0 else "Waiting... ⏳") + f"\n"
+                       f"💵 **BET AMOUNT:** `{current_amount:,} MMK` (Step {martingale_index + 1})\n"
+                       f"📈 **WINRATE:** `{win_rate:.1f}%`\n"
+                       f"📉 **MAX LOSE:** `{max_losses} ကြိမ်` (Current Lose: `{losses_count}`)\n"
+                       f"━━━━━━━━━━━━━━━━━━")
+                
+                send_msg(msg)
+                last_issue, last_prediction = issue, pred
     except Exception as e:
-        is_local = True
-        import random
-        num = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-        now = datetime.now()
-        issue = now.strftime("%Y%m%d1000") + str(now.hour * 60 + now.minute)
+        # API Token သေသွားခဲ့လျှင် သို့မဟုတ် Error တက်လျှင် Log ပြရန်
+        print(f"Polling Error: {e}")
 
-    actual_outcome = "BIG" if num >= 5 else "SMALL"
-    if last_prediction:
-        if last_prediction == actual_outcome:
-            total_wins += 1; losses_count = 0; martingale_index = 0  
-        else:
-            total_losses += 1; losses_count += 1
-            if losses_count > max_losses: max_losses = losses_count
-            if martingale_index < len(MARTINGALE_STEPS) - 1: martingale_index += 1
-            else: martingale_index = 0 
-
-    pred = calculate_prediction(issue, num)
-    current_amount = BASE_BET * MARTINGALE_STEPS[martingale_index]
-    next_issue = str(int(issue) + 1)
-    win_rate = (total_wins / (total_wins + total_losses) * 100) if (total_wins + total_losses) > 0 else 100
-    
-    msg = f"🔮 **WINGO 1-MIN PREDICTION** 🔮\n"
-    if is_local:
-        msg += f"⚠️ *(Live Connection Lost - Local Sync)*\n"
-    msg += f"━━━━━━━━━━━━━━━━━━\n"
-    msg += f"🆔 **Next Period:** `{next_issue}`\n"
-    msg += f"🎯 **Bet (ခန့်မှန်းချက်):** **{pred}**\n"
-    msg += f"━━━━━━━━━━━━━━━━━━\n"
-    msg += f"🎰 **Last Result:** `{issue}` -> `{num}` ({actual_outcome})\n"
-    msg += f"📊 **Win/Lose:** " + ("🟢 WIN" if losses_count == 0 and total_wins > 0 else "🔴 LOSE" if losses_count > 0 else "Waiting... ⏳") + f"\n"
-    msg += f"💵 **BET AMOUNT:** `{current_amount:,} MMK` (Step {martingale_index + 1})\n"
-    msg += f"📈 **WINRATE:** `{win_rate:.1f}%`\n"
-    msg += f"📉 **MAX LOSE:** `{max_losses} ကြိမ်` (Current Lose: `{losses_count}`)\n"
-    msg += f"━━━━━━━━━━━━━━━━━━"
-    
-    send_msg(msg)
-    last_issue, last_prediction = issue, pred
-
-def auto_loop():
-    print("AZBT Background Loop Engine started...")
-    # Render စတက်တက်ချင်း စာတစ်စောင် ချက်ချင်းထွက်လာစေရန်
-    time.sleep(5)
-    run_prediction_cycle()
-    
+def realtime_loop():
+    print("AZBT Realtime Polling Engine started...")
     while True:
-        time.sleep(60) # ၁ မိနစ် (စက္ကန့် ၆၀) တိတိ ပုံသေပတ်မည့်စနစ်
-        run_prediction_cycle()
+        check_and_process()
+        time.sleep(2) # 🌟 ၂ စက္ကန့်တစ်ခါ API ကို စစ်ဆေးနေမည် (အလှည့်ပြောင်းတာနဲ့ စာချက်ခြင်းထွက်ရန်)
 
 # =====================================================================
-# 4. STARTING THREADS (Port မတိုက်အောင် အဓိကပြင်ဆင်မှု)
+# 4. STARTING THREADS
 # =====================================================================
-# Background Loop ကို သီးသန့် မောင်းနှင်ခြင်း
-loop_thread = Thread(target=auto_loop, daemon=True)
-loop_thread.start()
+Thread(target=realtime_loop, daemon=True).start()
 
-# Render က Gunicorn နဲ့ လှမ်းခေါ်နိုင်အောင် app အား အသင့်ပြင်ထားခြင်း (app.run ကို ဖျက်လိုက်ပါပြီ)
 if __name__ == "__main__":
-    # Local မှာ စမ်းသပ်လိုပါက သုံးရန်သာ
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
