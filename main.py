@@ -32,16 +32,13 @@ except Exception as e:
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    bot.reply_to(message, "✅ Wingo AI Predictor Pro စတင်အလုပ်လုပ်နေပါပြီ။")
+    bot.reply_to(message, "✅ Wingo AI Predictor Pro အွန်လိုင်းပေါ် ရောက်ရှိနေပါပြီ။")
 
 # ==========================================
-# ဂိမ်းဆာဗာမှ API Data ဆွဲယူခြင်း (Token အမှန်ပြင်ဆင်ပြီး)
+# ဂိမ်းဆာဗာမှ API Data ဆွဲယူခြင်း
 # ==========================================
-
 def fetch_latest_game_data():
     url = "https://ckygjf6r.com/api/webapi/GetNoaverageEmerdList"
-    
-    # စာလုံးပေါင်း လုံးဝမလွဲစေရန် ကွက်တိပြန်ထည့်ပေးထားသော Token
     headers = {
         "Content-Type": "application/json;charset=UTF-8",
         "Accept": "application/json, text/plain, */*",
@@ -49,17 +46,12 @@ def fetch_latest_game_data():
         "Ar-Origin": "https://www.cklottery.online",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     }
-    
     payload = {
-        "pageSize": 10,
-        "pageNo": 1,
-        "typeId": 1,
-        "language": 0,
+        "pageSize": 10, "pageNo": 1, "typeId": 1, "language": 0,
         "random": "a5baaec6b5574ed18b2a6aef3bd6e0a2",
         "signature": "B885465CC3B958D74268260A9AC5F041",
         "timestamp": 1784360280
     }
-    
     try:
         response = requests.post(url, json=payload, headers=headers, timeout=8)
         if response.status_code == 200:
@@ -68,18 +60,15 @@ def fetch_latest_game_data():
                 return res_data["data"]["list"]
         return None
     except Exception as e:
-        print(f"API Fetch Error: {e}")
         return None
 
 # ==========================================
 # Formula တွက်ချက်ခြင်း စနစ်
 # ==========================================
-
 def generate_custom_formula_prediction():
     global HISTORY_STATS
     game_list = fetch_latest_game_data()
     
-    # API တိုင်ပတ်ရင်တောင် Bot မရပ်ဘဲ ခန့်မှန်းချက် ပို့ပေးမည့် Local Engine
     if not game_list:
         import random
         last_num = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
@@ -105,10 +94,7 @@ def generate_custom_formula_prediction():
             if HISTORY_STATS["current_lose_streak"] > HISTORY_STATS["max_lose_streak"]:
                 HISTORY_STATS["max_lose_streak"] = HISTORY_STATS["current_lose_streak"]
 
-    if HISTORY_STATS["total_bets"] > 0:
-        winrate = int((HISTORY_STATS["win_counts"] / HISTORY_STATS["total_bets"]) * 100)
-    else:
-        winrate = 100
+    winrate = int((HISTORY_STATS["win_counts"] / HISTORY_STATS["total_bets"]) * 100) if HISTORY_STATS["total_bets"] > 0 else 100
 
     try:
         next_issue = str(int(last_issue) + 1)
@@ -117,13 +103,8 @@ def generate_custom_formula_prediction():
         
     try:
         last_two_digits = last_issue[-2:]  
-        digit1 = int(last_two_digits[0])   
-        digit2 = int(last_two_digits[1])   
-        sum_digits = digit1 + digit2       
-        
-        formula_result = sum_digits - last_num  
-        final_code = abs(formula_result) % 10
-        pred_size = "BIG" if final_code >= 5 else "SMALL"
+        formula_result = (int(last_two_digits[0]) + int(last_two_digits[1])) - last_num  
+        pred_size = "BIG" if (abs(formula_result) % 10) >= 5 else "SMALL"
     except:
         import random
         pred_size = random.choice(["BIG", "SMALL"])
@@ -133,10 +114,10 @@ def generate_custom_formula_prediction():
 
     msg = f"🔮 **WINGO 1-MIN PREDICTION** 🔮\n"
     msg += f"━━━━━━━━━━━━━━━━━━\n"
-    msg += f"🆔 **Next Period (ထိုးရမည့်အလှည့်):** `{next_issue}`\n"
-    msg += f"🎯 **Bet (ခန့်မှန်းချက်):** **{pred_size}**\n"
+    msg += f"🆔 **Next Period:** `{next_issue}`\n"
+    msg += f"🎯 **Bet:** **{pred_size}**\n"
     msg += f"━━━━━━━━━━━━━━━━━━\n"
-    msg += f"🎰 **Last Result (ပြီးခဲ့သည့်ရလဒ်):** `{last_issue}` -> `{last_num}` ({actual_size})\n"
+    msg += f"🎰 **Last Result:** `{last_issue}` -> `{last_num}` ({actual_size})\n"
     msg += f"📊 **Win/Lose:** {win_lose_status}\n"
     msg += f"📉 **Max Lose:** {HISTORY_STATS['max_lose_streak']}\n"
     msg += f"📈 **Winrate:** {winrate}%\n"
@@ -144,13 +125,11 @@ def generate_custom_formula_prediction():
     return msg
 
 # ==========================================
-# အချိန်ကိုက် ပို့ပေးမည့် စနစ် (Auto-Sync Loop)
+# အလိုအလျောက် ပို့ပေးမည့် Loop 
 # ==========================================
-
 def auto_prediction_sender():
     while True:
         current_second = datetime.now().second
-        # စက္ကန့် ၅၈ မှာ API ဆွဲပြီး စက္ကန့် ၀၀ မိနစ်အကူးမှာ စာပို့ခြင်း
         if current_second == 58:
             try:
                 prediction = generate_custom_formula_prediction()
@@ -158,32 +137,38 @@ def auto_prediction_sender():
                     try:
                         bot.send_message(chat_id, prediction, parse_mode="Markdown")
                     except Exception as send_err:
-                        print(f"Failed sending to {chat_id}: {send_err}")
-                print("Prediction successfully sent at minute turn.")
+                        print(f"Send error: {send_err}")
             except Exception as e:
-                print(f"Loop Error: {e}")
+                print(f"Loop error: {e}")
             time.sleep(2)
         time.sleep(1)
+
+# 🌟 Render ကို အိပ်မပျော်အောင် ၅ မိနစ်တစ်ခါ Self-Ping လုပ်ပြီး နှိုးမည့်စနစ်
+def keep_alive_ping():
+    time.sleep(20)
+    while True:
+        try:
+            # မိမိကိုယ်တိုင် Flask Server ဆီ Request လှမ်းပို့ပြီး နှိုးခြင်း
+            requests.get("http://127.0.0.1:5000/", timeout=5)
+        except:
+            pass
+        time.sleep(300) # ၅ မိနစ် (စက္ကန့် ၃၀၀) တစ်ခါ
 
 def run_bot_polling():
     while True:
         try:
             bot.polling(none_stop=True, interval=0, timeout=20)
-        except Exception as e:
+        except:
             time.sleep(5)
 
 @app.route("/")
 def index():
-    return "Bot status: Active", 200
+    return "Bot status: Active & Awake", 200
 
 if __name__ == "__main__":
-    sender_thread = Thread(target=auto_prediction_sender)
-    sender_thread.daemon = True
-    sender_thread.start()
-    
-    polling_thread = Thread(target=run_bot_polling)
-    polling_thread.daemon = True
-    polling_thread.start()
+    Thread(target=auto_prediction_sender, daemon=True).start()
+    Thread(target=run_bot_polling, daemon=True).start()
+    Thread(target=keep_alive_ping, daemon=True).start() # နှိုးစနစ် Thread စတင်ခြင်း
     
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
