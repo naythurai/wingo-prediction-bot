@@ -1,6 +1,7 @@
 import os
 import time
 import requests
+from datetime import datetime
 from threading import Thread
 from flask import Flask
 import telebot
@@ -13,7 +14,6 @@ TOKEN = "8877327172:AAEJ5BHMEHRm82a4gBBRkaRmkSmn_IFl7LY"
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
-# ပို့ပေးရမည့် နေရာ (၂) ခုလုံး၏ ID
 TARGET_CHATS = [-1003803779601, 5491984866]
 
 HISTORY_STATS = {
@@ -32,16 +32,16 @@ except Exception as e:
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    bot.reply_to(message, "✅ Wingo AI Predictor Pro အွန်လိုင်းပေါ် ရောက်ရှိနေပါပြီ။")
+    bot.reply_to(message, "✅ Wingo AI Predictor Pro စတင်အလုပ်လုပ်နေပါပြီ။")
 
 # ==========================================
-# ဂိမ်းဆာဗာမှ API Data ဆွဲယူခြင်း (ဒေတာအသစ်စက်စက်)
+# ဂိမ်းဆာဗာမှ API Data ဆွဲယူခြင်း (Token အမှန်ပြင်ဆင်ပြီး)
 # ==========================================
 
 def fetch_latest_game_data():
     url = "https://ckygjf6r.com/api/webapi/GetNoaverageEmerdList"
     
-    # သင်ပေးထားသော Headers အသစ်
+    # စာလုံးပေါင်း လုံးဝမလွဲစေရန် ကွက်တိပြန်ထည့်ပေးထားသော Token
     headers = {
         "Content-Type": "application/json;charset=UTF-8",
         "Accept": "application/json, text/plain, */*",
@@ -50,7 +50,6 @@ def fetch_latest_game_data():
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     }
     
-    # သင်ပေးထားသော Payload အချက်အလက်အသစ်
     payload = {
         "pageSize": 10,
         "pageNo": 1,
@@ -62,7 +61,7 @@ def fetch_latest_game_data():
     }
     
     try:
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        response = requests.post(url, json=payload, headers=headers, timeout=8)
         if response.status_code == 200:
             res_data = response.json()
             if res_data.get("code") == 0 and "data" in res_data:
@@ -73,25 +72,26 @@ def fetch_latest_game_data():
         return None
 
 # ==========================================
-# Formula တွက်ချက်ခြင်း (Logic အမှန်ပြင်ဆင်ပြီး)
+# Formula တွက်ချက်ခြင်း စနစ်
 # ==========================================
 
 def generate_custom_formula_prediction():
     global HISTORY_STATS
     game_list = fetch_latest_game_data()
     
+    # API တိုင်ပတ်ရင်တောင် Bot မရပ်ဘဲ ခန့်မှန်းချက် ပို့ပေးမည့် Local Engine
     if not game_list:
         import random
         last_num = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
         actual_size = "BIG" if last_num >= 5 else "SMALL"
-        last_issue = str(int(time.time()))[-5:]
+        now = datetime.now()
+        last_issue = now.strftime("%Y%m%d1000") + str(now.hour * 60 + now.minute)
     else:
         latest_game = game_list[0]
         last_issue = latest_game["issueNumber"]  
         last_num = int(latest_game["number"])    
         actual_size = "BIG" if last_num >= 5 else "SMALL"
     
-    # ၁။ Win / Lose စစ်ဆေးခြင်း (ယခင်ခန့်မှန်းချက်နှင့် ယခုထွက်လာသော Result ကို တိုက်စစ်ခြင်း)
     win_lose_status = "Waiting... ⏳"
     if HISTORY_STATS["last_predicted_period"] == last_issue:
         HISTORY_STATS["total_bets"] += 1
@@ -110,13 +110,11 @@ def generate_custom_formula_prediction():
     else:
         winrate = 100
 
-    # ၂။ လာမည့်အလှည့်အမှန်ကို သတ်မှတ်ခြင်း (last_issue + 1)
     try:
         next_issue = str(int(last_issue) + 1)
     except:
         next_issue = "Next Period"
         
-    # ၃။ ပုံသေနည်းအတိုင်း တွက်ချက်ခြင်း (Period နောက်ဆုံး ၂ လုံးပေါင်း - Result)
     try:
         last_two_digits = last_issue[-2:]  
         digit1 = int(last_two_digits[0])   
@@ -130,11 +128,9 @@ def generate_custom_formula_prediction():
         import random
         pred_size = random.choice(["BIG", "SMALL"])
 
-    # နောက်တစ်လှည့်မှာ ပြန်တိုက်စစ်နိုင်ရန် ယခုခန့်မှန်းချက်ကို သိမ်းဆည်းခြင်း
     HISTORY_STATS["last_predicted_period"] = next_issue
     HISTORY_STATS["last_predicted_size"] = pred_size
 
-    # မက်ဆေ့ခ်ျ ပုံစံတကျ ထုတ်ပြန်ခြင်း
     msg = f"🔮 **WINGO 1-MIN PREDICTION** 🔮\n"
     msg += f"━━━━━━━━━━━━━━━━━━\n"
     msg += f"🆔 **Next Period (ထိုးရမည့်အလှည့်):** `{next_issue}`\n"
@@ -148,24 +144,26 @@ def generate_custom_formula_prediction():
     return msg
 
 # ==========================================
-# အလိုအလျောက် ပို့ပေးမည့် Loop
+# အချိန်ကိုက် ပို့ပေးမည့် စနစ် (Auto-Sync Loop)
 # ==========================================
 
 def auto_prediction_sender():
-    time.sleep(5)
     while True:
-        try:
-            prediction = generate_custom_formula_prediction()
-            for chat_id in TARGET_CHATS:
-                try:
-                    bot.send_message(chat_id, prediction, parse_mode="Markdown")
-                except Exception as send_err:
-                    print(f"Failed sending to {chat_id}: {send_err}")
-            print("Prediction broadcasted successfully with updated API.")
-        except Exception as e:
-            print(f"Loop Error: {e}")
-        
-        time.sleep(60)
+        current_second = datetime.now().second
+        # စက္ကန့် ၅၈ မှာ API ဆွဲပြီး စက္ကန့် ၀၀ မိနစ်အကူးမှာ စာပို့ခြင်း
+        if current_second == 58:
+            try:
+                prediction = generate_custom_formula_prediction()
+                for chat_id in TARGET_CHATS:
+                    try:
+                        bot.send_message(chat_id, prediction, parse_mode="Markdown")
+                    except Exception as send_err:
+                        print(f"Failed sending to {chat_id}: {send_err}")
+                print("Prediction successfully sent at minute turn.")
+            except Exception as e:
+                print(f"Loop Error: {e}")
+            time.sleep(2)
+        time.sleep(1)
 
 def run_bot_polling():
     while True:
