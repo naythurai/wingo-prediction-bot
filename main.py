@@ -13,7 +13,7 @@ app = Flask('')
 
 @app.route('/')
 def home():
-    return "AZBT WINGO 1-MIN ACCURATE ENGINE IS RUNNING", 200
+    return "AZBT WINGO 1-MIN ACTIVE", 200
 
 # =====================================================================
 # 2. CONFIGURATION & TOKENS (Brother ပေးထားသော Token အစစ်အမှန် ကွက်တိ)
@@ -23,13 +23,12 @@ CHAT_ID = "5491984866"
 GROUP_ID = "-1003803779601"
 TARGET_URL = "https://ckygjf6r.com/api/webapi/GetNoaverageEmerdList"
 
-# Brother ပေးထားသော Token အစစ်အမှန် (၁လုံးမှမချန် ပြန်ဆက်ထားသည်)
 AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0MzY4Mjc4IiwibmJmIjoiMTc4NDM2MDI3OCIsImV4cCI6IjE3ODQzNzAwNzgiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzE4LzIwMjYgNDo1MToxOCBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQkFCQUYiLCJBbW91bnQiOiIyLjk4IiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI3LzE4LzIwMjYgNDoyMToxOCBQTSIsIkxvZ2luSVBBZGRyZXNzIjoiMTAzLjc3LjIxNi40IiwiRGJOdW1iZXIiOiIwIiwiSXN2YWxpZGF0b3IiOiIwIiwiS2V5Q29kZSI6IjQyNyIsIlRva2VuVHlwZSI6IkFjY2Vzc19Ub2tlbiIsIlBob25lVHlwZSI6IjEiLCJVc2VyVHlwZSI6IjAiLCJVc2VyTmFtZTIiOiIiLCJpc3MiOiJqd3RJc3N1ZXIiLCJhdWQiOiJsb3R0ZXJ5VGlja2V0In0.3DfshGQ_0szvrM2iPlnBqhs3-TuynRvDvBiaWFi5U6I"
 
 PAYLOAD_DATA = {
     "pageSize": 10, 
     "pageNo": 1, 
-    "typeId": 1,  # 1-Minute Wingo အစစ်အမှန်
+    "typeId": 1, 
     "language": 0,
     "random": "42e331bc2d6d4a438014a4ace2db04f7",
     "signature": "4036E66D7C67DB284B6B0B0F85A1F8ED",
@@ -67,7 +66,7 @@ def calculate_prediction(last_issue_str, last_num):
 # ==========================================
 # 3. REALTIME TRACKING ENGINE
 # ==========================================
-def check_and_process():
+def check_and_process(force_send=False):
     global last_issue, losses_count, max_losses, total_wins, total_losses, last_prediction, martingale_index
     
     headers = {
@@ -87,11 +86,11 @@ def check_and_process():
             issue = str(latest["issueNumber"])
             num = int(latest["number"])
             
-            # API မှ ဒေတာအစစ် တက်လာမှသာ အလုပ်လုပ်မည်
-            if issue != last_issue:
+            # 🌟 ပထမဆုံးအကြိမ် ဇွတ်ပို့ခိုင်းခြင်း (force_send) သို့မဟုတ် ဂိမ်းအလှည့်အသစ် တက်လာချိန်တွင် ပို့မည်
+            if issue != last_issue or force_send:
                 actual_outcome = "BIG" if num >= 5 else "SMALL"
                 
-                if last_prediction:
+                if last_prediction and not force_send:
                     if last_prediction == actual_outcome:
                         total_wins += 1; losses_count = 0; martingale_index = 0  
                     else:
@@ -119,19 +118,21 @@ def check_and_process():
                 
                 send_msg(msg)
                 last_issue, last_prediction = issue, pred
-        else:
-            print("API Response Error or Token Expired.")
     except Exception as e:
-        print(f"Network/Auth Error: {e}")
+        print(f"Error: {e}")
 
 def realtime_loop():
-    print("AZBT Realtime Active Polling Engine...")
+    print("AZBT High-Frequency Polling Loop Running...")
+    # 🌟 ဆာဗာ Live ဖြစ်တာနဲ့ စက္ကန့်ပိုင်းအတွင်း ပထမဆုံးစာ ချက်ချင်းထွက်လာအောင် Trigger ပေးခြင်း
+    time.sleep(2)
+    check_and_process(force_send=True)
+    
     while True:
         check_and_process()
-        time.sleep(1.5) # ၁.၅ စက္ကန့်တစ်ခါ ဂိမ်းဆာဗာကို Realtime စစ်ဆေးနေမည်
+        time.sleep(1.5) # ၁.၅ စက္ကန့်တစ်ခါ ရလဒ်အသစ်ကို Realtime ထိုင်စောင့်ကြည့်မည်
 
 # =====================================================================
-# 4. START RUNNING
+# 4. RUNNING THREAD
 # =====================================================================
 Thread(target=realtime_loop, daemon=True).start()
 
