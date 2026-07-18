@@ -12,23 +12,26 @@ app = Flask('')
 
 @app.route('/')
 def home():
-    return "AZBT WINGO 1-MIN PURE REALTIME ENGINE IS ACTIVE", 200
+    return "AZBT WINGO 1-MIN PURE REAL ENGINE ACTIVE", 200
 
 # =====================================================================
-# 2. CONFIGURATION & TOKENS (Token လုံးဝမလိုသော ကမ္ဘာသုံး Public API စနစ်)
+# 2. CONFIGURATION & TOKENS (Pure Real API Settings)
 # =====================================================================
 TOKEN = "8877327172:AAEJ5BHMEHRm82a4gBBRkaRmkSmn_IFl7LY"
 CHAT_ID = "5491984866"
 GROUP_ID = "-1003803779601"
+TARGET_URL = "https://ckygjf6r.com/api/webapi/GetNoaverageEmerdList"
 
-# 🌟 Token မလိုဘဲ Realtime ဒေတာ တိုက်ရိုက်ဆွဲနိုင်သော စနစ်သို့ ပြောင်းလဲခြင်း
-TARGET_URL = "https://api.cklottery.online/api/webapi/GetNoaverageEmerdList"
+AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0Mzc2MjczIiwibmJmIjoiMTc4NDMzc2I3MyIsImV4cCI6IjE3ODQzNzgwNzMiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzE4LzIwMjYgNzowNDozMyBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQkFCQUYiLCJBbW91bnQiOiIyMS4zNyIsIkludGVncmFsIjoiMCIsIkxvZ2luTWFyayI6Ikg1IiwiTG9naW5UaW1lIjoiNy8xOC8yMDI2IDY6MzQ6MzMgUE0iLCJMb2dpbklQQWRkcmVzcyI6IjgyLjIxLjg0LjE4NSIsIkRiTnVtYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiI0MjkiLCJUb2tlblR5cGUiOiJBY2Nlc3NfVG9rZW4iLCJQaG9uZVR5cGUiOiIxIiwiVXNlclR5cGUiOiIwIiwiVXNlck5hbWUyIjoiIiwiaXNzIjoiand0SXNzdWVyIiwiYXVkIjoibG90dGVyeVRpY2tldCJ9.qeMNVOajJv7YJLOInohzNLMamQmB-47WMf18NZRPzeM"
 
 PAYLOAD_DATA = {
     "pageSize": 10,
     "pageNo": 1,
     "typeId": 1,
-    "language": 0
+    "language": 0,
+    "random": "9594f25bd624446aa0c42cb334b84ff8",
+    "signature": "24C1156EFA47FC20560795B24C745537",
+    "timestamp": 1784376300
 }
 
 bot = telebot.TeleBot(TOKEN)
@@ -44,7 +47,7 @@ def send_msg(text):
         try: 
             bot.send_message(cid, text, parse_mode="Markdown")
         except Exception as e:
-            print(f"Telegram Error: {e}")
+            print(f"Telegram Send Error: {e}")
 
 # ==========================================
 # 🧠 Formula: (Period နောက်ဆုံး ၂ လုံးပေါင်း) - Result
@@ -60,28 +63,30 @@ def calculate_prediction(last_issue_str, last_num):
         return "BIG"
 
 # ==========================================
-# 3. PURE REALTIME ENGINE (100% ဒေတာအစစ်)
+# 3. PURE REALTIME ENGINE (No Fake, No Fix)
 # ==========================================
 def check_and_process():
     global last_issue, losses_count, max_losses, total_wins, total_losses, last_prediction, martingale_index
     
     headers = {
+        "Authorization": AUTH_TOKEN,
         "Content-Type": "application/json;charset=UTF-8",
         "Accept": "application/json, text/plain, */*",
+        "Ar-Origin": "https://www.cklottery.online",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     }
     
     try:
-        # Token မပါဘဲ လှမ်းတောင်းခြင်း
         response = requests.post(TARGET_URL, json=PAYLOAD_DATA, headers=headers, timeout=6)
         resp = response.json()
         
+        # API Response အောင်မြင်ပြီး ဒေတာအစစ် ပါလာမှသာ အလုပ်လုပ်မည်
         if response.status_code == 200 and resp.get("code") == 0 and resp.get("data", {}).get("list"):
             latest = resp["data"]["list"][0]
             issue = str(latest["issueNumber"])
             num = int(latest["number"])
             
-            # ဂိမ်းထဲမှာ အလှည့်အသစ် တကယ်ပြောင်းမှသာ စာပို့မည်
+            # ဂိမ်းထဲမှာ အလှည့်အသစ် တကယ်ပြောင်းသွားမှသာ စာပို့မည်
             if issue != last_issue:
                 actual_outcome = "BIG" if num >= 5 else "SMALL"
                 
@@ -99,7 +104,6 @@ def check_and_process():
                 next_issue = str(int(issue) + 1)
                 win_rate = (total_wins / (total_wins + total_losses) * 100) if (total_wins + total_losses) > 0 else 100
                 
-                # 🌟 Live Connection Lost စာတန်းကြီးကို ထာဝရ ဖြုတ်ချလိုက်ပါပြီ
                 msg = (f"🔮 **WINGO 1-MIN PREDICTION** 🔮\n"
                        f"━━━━━━━━━━━━━━━━━━\n"
                        f"🆔 **Next Period:** `{next_issue}`\n"
@@ -114,14 +118,16 @@ def check_and_process():
                 
                 send_msg(msg)
                 last_issue, last_prediction = issue, pred
+        else:
+            print("API Error: Real Data မရရှိနိုင်ပါ။ (Token သေဆုံးနေခြင်း သို့မဟုတ် Response မှားယွင်းခြင်း)")
     except Exception as e:
-        print(f"Connection Waiting: {e}")
+        print(f"Network Connection Error: {e}")
 
 def realtime_loop():
-    print("AZBT Public Core Realtime Engine Running...")
+    print("AZBT Pure Real Engine Started (No Local Fix Mode)...")
     while True:
         check_and_process()
-        time.sleep(1.5) # ၁.၅ စက္ကန့်တစ်ခါ ဆာဗာကို Realtime ထိုင်စောင့်ကြည့်မည်
+        time.sleep(1.5) # ၁.၅ စက္ကန့်တစ်ခါ API ဆီက ဒေတာအစစ်ကိုပဲ ထိုင်စောင့်ကြည့်မည်
 
 # =====================================================================
 # 4. RUN ENGINE
