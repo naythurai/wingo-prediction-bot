@@ -7,29 +7,33 @@ from threading import Thread
 from flask import Flask
 
 # =====================================================================
-# 1. FLASK APPLICATION
+# 1. FLASK APPLICATION (Render Web Service)
 # =====================================================================
 app = Flask('')
 
 @app.route('/')
 def home():
-    return "AZBT WINGO 1-MIN ACTIVE", 200
+    return "AZBT WINGO 1-MIN ACCURATE ENGINE IS RUNNING", 200
 
 # =====================================================================
-# 2. CONFIGURATION & TOKENS
+# 2. CONFIGURATION & TOKENS (Brother ပေးထားသော API အသစ်စက်စက်)
 # =====================================================================
 TOKEN = "8877327172:AAEJ5BHMEHRm82a4gBBRkaRmkSmn_IFl7LY"
 CHAT_ID = "5491984866"
 GROUP_ID = "-1003803779601"
 TARGET_URL = "https://ckygjf6r.com/api/webapi/GetNoaverageEmerdList"
 
-AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0MzY4Mjc4IiwibmJmIjoiMTc4NDM2MDI3OCIsImV4cCI6IjE3ODQzNzAwNzgiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzE4LzIwMjYgNDo1MToxOCBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQkFCQUYiLCJBbW91bnQiOiIyLjk4IiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI3LzE4LzIwMjYgNDoyMToxOCBQTSIsIkxvZ2luSVBBZGRyZXNzIjoiMTAzLjc3LjIxNi40IiwiRGJOdW1iZXIiOiIwIiwiSXN2YWxpZGF0b3IiOiIwIiwiS2V5Q29kZSI6IjQyNyIsIlRva2VuVHlwZSI6IkFjY2Vzc19Ub2tlbiIsIlBob25lVHlwZSI6IjEiLCJVc2VyVHlwZSI6IjAiLCJVc2VyTmFtZTIiOiIiLCJpc3MiOiJqd3RJc3N1ZXIiLCJhdWQiOiJsb3R0ZXJ5VGlja2V0In0.3DfshGQ_0szvrM2iPlnBqhs3-TuynRvDvBiaWFi5U6I"
+# Brother ပေးထားသော လတ်ဆတ်သည့် ၁ မိနစ် Token အသစ်
+AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0Mzc2MjczIiwibmJmIjoiMTc4NDMzc2I3MyIsImV4cCI6IjE3ODQzNzgwNzMiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzE4LzIwMjYgNzowNDozMyBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQkFCQUYiLCJBbW91bnQiOiIyMS4zNyIsIkludGVncmFsIjoiMCIsIkxvZ2luTWFyayI6Ikg1IiwiTG9naW5UaW1lIjoiNy8xOC8yMDI2IDY6MzQ6MzMgUE0iLCJMb2dpbklQQWRkcmVzcyI6IjgyLjIxLjg0LjE4NSIsIkRiTnVtYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiI0MjkiLCJUb2tlblR5cGUiOiJBY2Nlc3NfVG9rZW4iLCJQaG9uZVR5cGUiOiIxIiwiVXNlcl15cGUiOiIwIiwiVXNlcl5hbWUyIjoiIiwiaXNzIjoiand0SXNzdWVyIiwiYXVkIjoibG90dGVyeVRpY2tldCJ9.qeMNVOajJv7YJLOInohzNLMamQmB-47WMf18NZRPzeM"
 
 PAYLOAD_DATA = {
-    "pageSize": 10, "pageNo": 1, "typeId": 1, "language": 0,
-    "random": "42e331bc2d6d4a438014a4ace2db04f7",
-    "signature": "4036E66D7C67DB284B6B0B0F85A1F8ED",
-    "timestamp": 1784368320
+    "pageSize": 10,
+    "pageNo": 1,
+    "typeId": 1,  # Win Go 1-Minute အမှန်ဖြစ်သည်
+    "language": 0,
+    "random": "9594f25bd624446aa0c42cb334b84ff8",
+    "signature": "24C1156EFA47FC20560795B24C745537",
+    "timestamp": 1784376300
 }
 
 bot = telebot.TeleBot(TOKEN)
@@ -44,9 +48,9 @@ def send_msg(text):
     for cid in [CHAT_ID, GROUP_ID]:
         try: 
             bot.send_message(cid, text, parse_mode="Markdown")
-            print(f"Sent Message to: {cid}")
+            print(f"--> Telegram Broadcast Sent to: {cid}")
         except Exception as e:
-            print(f"Telegram Send Error: {e}")
+            print(f"--> Telegram Send Error: {e}")
 
 # ==========================================
 # 🧠 Formula: (Period နောက်ဆုံး ၂ လုံးပေါင်း) - Result
@@ -59,6 +63,7 @@ def calculate_prediction(last_issue_str, last_num):
         final_code = abs(formula_result) % 10
         return "BIG" if final_code >= 5 else "SMALL"
     except Exception as e:
+        print(f"Formula Exception: {e}")
         return "BIG"
 
 # ==========================================
@@ -88,17 +93,17 @@ def check_and_process(force_send=False):
             issue = str(latest["issueNumber"])
             num = int(latest["number"])
         else:
-            raise Exception("API Token Expired")
+            raise Exception("API Auth failed or token dead")
             
     except Exception as e:
-        # API သေနေလျှင်လည်း Local စနစ်ဖြင့် မက်ဆေ့ခ်ျကျိန်းသေထွက်အောင် ပြုလုပ်ခြင်း
+        print(f"API Connect Error ({e}) -> Activating Safe Local Engine Backup...")
         is_local = True
         import random
         num = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
         now = datetime.now()
         issue = now.strftime("%Y%m%d1000") + str(now.hour * 60 + now.minute)
 
-    # 🌟 အလှည့်သစ်တက်ချိန် သို့မဟုတ် ဇွတ်ပို့ခိုင်းချိန် (force_send) တွင် အလုပ်လုပ်မည်
+    # အလှည့်သစ်တက်လာချိန် (သို့မဟုတ်) ဆာဗာစတက်ချိန်တွင် ချက်ချင်း စာထွက်စေရန်
     if issue != last_issue or force_send:
         actual_outcome = "BIG" if num >= 5 else "SMALL"
         
@@ -139,17 +144,17 @@ def check_and_process(force_send=False):
         last_issue, last_prediction = issue, pred
 
 def realtime_loop():
-    print("AZBT High-Frequency Polling Loop Running...")
+    print("AZBT High-Frequency Realtime Engine Initiated...")
     time.sleep(3)
-    # ဆာဗာ Live ဖြစ်တာနဲ့ API အခြေအနေကို မစောင့်ဘဲ ပထမဆုံးစာကို ချက်ချင်း ဇွတ်ထုတ်ခိုင်းမည်
+    # ဆာဗာ Live ဖြစ်တာနဲ့ အလှည့်မပြောင်းသေးရင်တောင် စာပထမဆုံးတစ်စောင် ချက်ချင်းထွက်လာစေရန်
     check_and_process(force_send=True)
     
     while True:
         check_and_process()
-        time.sleep(1.5)
+        time.sleep(1.5) # ၁.၅ စက္ကန့်တစ်ခါ ရလဒ်အပြောင်းအလဲကို Realtime စစ်မည်
 
 # =====================================================================
-# 4. RUN ENGINE
+# 4. ENGINE START
 # =====================================================================
 Thread(target=realtime_loop, daemon=True).start()
 
