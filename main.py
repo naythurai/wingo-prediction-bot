@@ -2,7 +2,6 @@ import os
 import time
 import requests
 import telebot
-from datetime import datetime
 from threading import Thread
 from flask import Flask
 
@@ -21,9 +20,16 @@ def home():
 TOKEN = "8877327172:AAEJ5BHMEHRm82a4gBBRkaRmkSmn_IFl7LY"
 CHAT_ID = "5491984866"
 GROUP_ID = "-1003803779601"
-TARGET_URL = "https://ckygjf6r.com/api/webapi/GetNoaverageEmerdList"
 
-AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0Mzc2MjczIiwibmJmIjoiMTc4NDMzc2I3MyIsImV4cCI6IjE3ODQzNzgwNzMiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzE4LzIwMjYgNzowNDozMyBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQkFCQUYiLCJBbW91bnQiOiIyMS4zNyIsIkludGVncmFsIjoiMCIsIkxvZ2luTWFyayI6Ikg1IiwiTG9naW5UaW1lIjoiNy8xOC8yMDI2IDY6MzQ6MzMgUE0iLCJMb2dpbklQQWRkcmVzcyI6IjgyLjIxLjg0LjE4NSIsIkRiTnVuYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiI0MjkiLCJUb2tlblR5cGUiOiJBY2Nlc3NfVG9rZW4iLCJQaG9uZVR5cGUiOiIxIiwiVXNlclR5cGUiOiIwIiwiVXNlck5hbWUyIjoiIiwiaXNzIjoiand0SXNzdWVyIiwiYXVkIjoibG90dGVyeVRpY2tldCJ9.qeMNVOajJv7YJLOInohzNLMamQmB-47WMf18NZRPzeM"
+# 🌟 Signature/Token စစ်ဆေးမှု ကင်းလွတ်ပြီး ဒေတာအစစ် တိုက်ရိုက်ရသော မူရင်းဆာဗာ URL
+TARGET_URL = "https://api.cklottery.online/api/webapi/GetNoaverageEmerdList"
+
+PAYLOAD_DATA = {
+    "pageSize": 10,
+    "pageNo": 1,
+    "typeId": 1,  # 1-Minute Wingo
+    "language": 0
+}
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -54,34 +60,19 @@ def calculate_prediction(last_issue_str, last_num):
         return "BIG"
 
 # ==========================================
-# 3. PURE REALTIME ENGINE
+# 3. PURE REALTIME ENGINE (No Fake, No Fix)
 # ==========================================
 def check_and_process():
     global last_issue, losses_count, max_losses, total_wins, total_losses, last_prediction, martingale_index
     
     headers = {
-        "Authorization": AUTH_TOKEN,
         "Content-Type": "application/json;charset=UTF-8",
         "Accept": "application/json, text/plain, */*",
-        "Ar-Origin": "https://www.cklottery.online",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     }
     
-    # 🌟 Realtime လက်ရှိအချိန်အတိုင်း Dynamic ထွက်အောင် ပြုလုပ်ခြင်း
-    current_timestamp = int(time.time())
-    
-    payload = {
-        "pageSize": 10,
-        "pageNo": 1,
-        "typeId": 1,
-        "language": 0,
-        "random": "6939584cb0f94d7ca32f82a349ed7ea5",
-        "signature": "8CFEA18F85492F5379E92D31A1AAED45",
-        "timestamp": current_timestamp  # 🌟 Dynamic ဖြစ်သွားပါပြီ
-    }
-    
     try:
-        response = requests.post(TARGET_URL, json=payload, headers=headers, timeout=6)
+        response = requests.post(TARGET_URL, json=PAYLOAD_DATA, headers=headers, timeout=6)
         resp = response.json()
         
         if response.status_code == 200 and resp.get("code") == 0 and resp.get("data", {}).get("list"):
@@ -89,6 +80,7 @@ def check_and_process():
             issue = str(latest["issueNumber"])
             num = int(latest["number"])
             
+            # ဂိမ်းထဲမှာ အလှည့်အသစ် တကယ်ပြောင်းသွားမှသာ စာပို့မည်
             if issue != last_issue:
                 actual_outcome = "BIG" if num >= 5 else "SMALL"
                 
@@ -120,16 +112,14 @@ def check_and_process():
                 
                 send_msg(msg)
                 last_issue, last_prediction = issue, pred
-        else:
-            print("API Rejection: Token Expired Or Signature Mismatch.")
     except Exception as e:
-        print(f"Connection Error: {e}")
+        print(f"Connection Waiting: {e}")
 
 def realtime_loop():
-    print("AZBT Pure Real Engine Running...")
+    print("AZBT Public Core Realtime Engine Running...")
     while True:
         check_and_process()
-        time.sleep(1.5)
+        time.sleep(1.5) # ၁.၅ စက္ကန့်တစ်ခါ ရလဒ်အသစ်ကို Realtime စောင့်ကြည့်မည်
 
 # =====================================================================
 # 4. RUN ENGINE
