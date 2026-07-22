@@ -21,11 +21,11 @@ TOKEN = "8877327172:AAEJ5BHMEHRm82a4gBBRkaRmkSmn_IFl7LY"
 CHAT_ID = "5491984866"
 GROUP_ID = "-1003803779601"
 
-# 🌟 ပေးပို့ထားသော API Endpoint အသစ်
+# 🌟 API Endpoint
 TARGET_URL = "https://api.bigwinqaz.com/api/webapi/GetEmerdList"
 
 # 🌟 Header & Authorization Details
-AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0NjkwNjc3IiwibmJmIjoiMTc4NDY5MDY3NyIsImV4cGlyYXRpb24iOiI3LzIyLzIwMjYgMTA6MjQ6MzcgQU0iLCJyb2xlIjoiQWNjZXNzX1Rva2VuIiwidXNlcmlkIjo2MDU2MzIsInVzZXJuYW1lIjoiOTU5OTY2NTAyNjk1IiwidXNlcnBob3RvIjoiMSIsIm5pY2tuYW1lIjoiTWVtYmVyTk5HQ0FLWk4iLCJhbW91bnQiOiI2LjAwIiwiaW50ZWdyYWwiOiIwIiwibG9naW5tYXJrIjoiSDUiLCJsb2dpbnRpbWUiOiI3LzIyLzIwMjYgOTo1NDozNyBBTSIsImxvZ2luaXBhZGRyZXNzIjoiODIuMjEuODQuODIiLCJkYm51bWJlciI6IjAiLCJpc3ZhbGlkYXRvciI6IjAiLCJrZXljb2RlIjoiMTA0IiwidG9rZW50eXBlIjoiQWNjZXNzX1Rva2VuIiwicGhvbmV0eXBlIjoiMSIsInVzZXJ0eXBlIjoiMCIsInVzZXJuYW1lMiI6IiIsImlzcyI6Imp3dElzc3VlciIsImF1ZCI6ImxvdHRlcnlUaWNrZXQifQ.pjZp8XV4YcZxWFPNhkaJ0z3p8qJx3bjIja1id7QAaow"
+AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0NjkwNjc3IiwibmJmIjoiMTc4NDY5MDY3NyIsImV4cGlyYXRpb24iOiI3LzIyLzIwMjYgMTA6MjQ6MzcgQU0iLCJyb2xlIjoiQWNjZXNzX1Rva2VuIiwidXNlcmlkIjo2MDU2MzIsInVzZXJuYW1lIjoiOTU5OTY2NTAyNjk1IiwidXNlcnBob3RvIjoiMSIsIm5pY2tuYW1lIjoiTWVtYmVyTk5HQ0FLWk4iLCJhbW91bnQiOiI2LjAwIiwiaW50ZWdyYWwiOiIwIiwibG9naW5tYXJrIjoiSDUiLCJsb2dpbnRpbWUiOiI3LzIyLzIwMjYgOTo1NDozNyBBTSIsImxvZ2luaXBhZGRyZXNzIjoiODIuMjEuODQuODIiLCJkYm51bWJlciI6IjAiLCJpc3ZhbGlkYXRvciI6IjAiLCJrZXljb2RlIjoiMTA0IiwidG9rZW50eXBlIjoiQWNjZXNzX1Rva2VuIiwicGhvbmV0eXBlIjoiMSIsInVzZXJ0eXBlIjoiMCIsInVzZXJOYW1lMiI6IiIsImlzcyI6Imp3dElzc3VlciIsImF1ZCI6ImxvdHRlcnlUaWNrZXQifQ.pjZp8XV4YcZxWFPNhkaJ0z3p8qJx3bjIja1id7QAaow"
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -34,10 +34,10 @@ MARTINGALE_STEPS = [1, 3, 8, 24, 72, 216, 648, 1944, 5832]
 martingale_index = 0
 
 last_winning_num = -1
-losses_count = 0
-max_losses = 0
-total_wins = 0
-total_losses = 0
+actual_current_losses = 0  # အမှန်တကယ် ထိုးပြီး လက်ရှိ ဆက်တိုက် ရှုံးနေသည့် အကြိမ်
+actual_max_losses = 0      # အမှန်တကယ် ထိုးပြီး အများဆုံး ဆက်တိုက် ရှုံးခဲ့သည့် အကြိမ်
+actual_bet_wins = 0        # အမှန်တကယ် ထိုးပြီး နိုင်သည့် အကြိမ်
+actual_bet_losses = 0      # အမှန်တကယ် ထိုးပြီး ရှုံးသည့် စုစုပေါင်း အကြိမ်
 last_prediction = ""
 
 # 🛡️ 1-Loss Pause & Auto-Recovery State Variables
@@ -52,26 +52,31 @@ def send_msg(text):
             print(f"Telegram Send Error: {e}")
 
 # ==========================================
-# 🧠 Frequency & Trend Calculation Logic
+# 🧠 Big/Small Count Calculation Logic
 # ==========================================
 def calculate_prediction_from_grid(data_list):
     try:
         freq_data = next((item for item in data_list if item.get("type") == 1), None)
         if not freq_data:
-            return "BIG"
+            return "WAIT"
             
         small_total = sum(freq_data.get(f"number_{i}", 0) for i in range(5))
         big_total = sum(freq_data.get(f"number_{i}", 0) for i in range(5, 10))
         
-        return "BIG" if big_total >= small_total else "SMALL"
+        # 🌟 အရေအတွက် တူနေပါက WAIT ဟု ပြန်ပေးမည်
+        if big_total == small_total:
+            return "WAIT"
+        
+        return "BIG" if big_total > small_total else "SMALL"
     except Exception as e:
-        return "BIG"
+        return "WAIT"
 
 # ==========================================
 # 3. PURE REALTIME ENGINE (GetEmerdList API)
 # ==========================================
 def check_and_process():
-    global last_winning_num, losses_count, max_losses, total_wins, total_losses
+    global last_winning_num, actual_current_losses, actual_max_losses
+    global actual_bet_wins, actual_bet_losses
     global last_prediction, martingale_index, is_paused, shadow_prediction
     
     headers = {
@@ -109,47 +114,62 @@ def check_and_process():
                 # အဖြေအသစ် ထွက်လာမှသာ စိစစ်မည်
                 if current_num != -1 and current_num != last_winning_num:
                     actual_outcome = "BIG" if current_num >= 5 else "SMALL"
+                    is_win_event = False
                     
                     # -------------------------------------------------------------
                     # ၁။ ပြီးခဲ့သော အလှည့် ရလဒ် စိစစ်ခြင်း & 1-LOSS PAUSE LOGIC
                     # -------------------------------------------------------------
                     if is_paused:
                         # WAIT Mode ရောက်နေချိန်: နောက်ကွယ်မှ Shadow Signal ကို တိုက်စစ်သည်
-                        if shadow_prediction and shadow_prediction == actual_outcome:
+                        if shadow_prediction and shadow_prediction != "WAIT" and shadow_prediction == actual_outcome:
                             is_paused = False
-                            losses_count = 0
+                            actual_current_losses = 0
                             martingale_index = 0
                             status_text = "🟢 RECOVERED (Signal ပြန်ဖွင့်ပါပြီ)"
+                            is_win_event = True
                         else:
                             status_text = "🟡 PAUSED (စောင့်ကြည့်ဆဲ...)"
                     else:
-                        # NORMAL Mode ရောက်နေချိန်
+                        # NORMAL Mode ရောက်နေချိန် (အမှန်တကယ် ထိုးသည့် အကြိမ်များ)
                         if last_prediction and last_prediction != "WAIT":
                             if last_prediction == actual_outcome:
-                                total_wins += 1
-                                losses_count = 0
+                                actual_bet_wins += 1
+                                actual_current_losses = 0
                                 martingale_index = 0  
-                                status_text = "🟢 WIN"
+                                status_text = "🟢 WIN ✅ (အနိုင်ရရှိပါသည်)"
+                                is_win_event = True
                             else:
-                                total_losses += 1
-                                losses_count += 1
-                                if losses_count > max_losses:
-                                    max_losses = losses_count
+                                actual_bet_losses += 1
+                                actual_current_losses += 1
+                                
+                                if actual_current_losses > actual_max_losses:
+                                    actual_max_losses = actual_current_losses
                                 
                                 # ၁ ကြိမ် ရှုံးသည်နှင့် PAUSE Mode ချက်ချင်းဝင်မည်
                                 is_paused = True
                                 status_text = "🔴 LOSE (၁ ကြိမ်မှားသဖြင့် WAIT ခိုင်းထားပါသည်)"
+                        else:
+                            status_text = "⚪ SKIPPED / WAITING"
 
                     # -------------------------------------------------------------
-                    # ၂။ နောက်တစ်ကြိမ်အတွက် PREDICTION ထုတ်ယူခြင်း
+                    # ၂။ နောက်တစ်ကြိမ်အတွက် PREDICTION & WINRATE တွက်ယူခြင်း
                     # -------------------------------------------------------------
                     raw_pred = calculate_prediction_from_grid(data_list)
-                    win_rate = (total_wins / (total_wins + total_losses) * 100) if (total_wins + total_losses) > 0 else 100
-                    server_time = resp.get("serviceNowTime", "")
+                    
+                    # အမှန်တကယ် ထိုးထားသည့် အကြိမ်များပေါ်တွင်သာ Win Rate တွက်ချက်ခြင်း
+                    total_actual_bets = actual_bet_wins + actual_bet_losses
+                    win_rate = (actual_bet_wins / total_actual_bets * 100) if total_actual_bets > 0 else 100.0
+                    
+                    server_time = resp.get("serviceNowTime", "").split(' ')[-1]
                     
                     if is_paused:
                         display_pred = "🛑 WAIT (စောင့်ကြည့်ပါ)"
                         shadow_prediction = raw_pred  # နောက်ကွယ်တွင် ခန့်မှန်းချက် မှတ်ထားမည်
+                        last_prediction = "WAIT"
+                        current_amount = BASE_BET
+                    elif raw_pred == "WAIT":
+                        display_pred = "🛑 WAIT (Big/Small အရေအတွက် တူနေပါသည်)"
+                        shadow_prediction = ""
                         last_prediction = "WAIT"
                         current_amount = BASE_BET
                     else:
@@ -159,17 +179,22 @@ def check_and_process():
                         current_amount = BASE_BET * MARTINGALE_STEPS[martingale_index]
 
                     # -------------------------------------------------------------
-                    # ၃။ TELEGRAM MESSAGE ပို့ဆောင်ခြင်း
+                    # ၃။ TELEGRAM MESSAGE ပို့ဆောင်ခြင်း (WIN ရင် 🏆🏆🏆 ပြမည်)
                     # -------------------------------------------------------------
-                    msg = (f"🔮 **AZBT REAL-SYNC WINGO PREDICTION** 🔮\n"
+                    if is_win_event:
+                        header_banner = "====================================\n🏆🏆🏆 CONGRATULATIONS! WIN! 🏆🏆🏆\n===================================="
+                    else:
+                        header_banner = "🔮 **AZBT REAL-SYNC WINGO PREDICTION** 🔮"
+
+                    msg = (f"{header_banner}\n"
                            f"━━━━━━━━━━━━━━━━━━\n"
                            f"🎯 **Bet (ခန့်မှန်းချက်):** {display_pred}\n"
                            f"━━━━━━━━━━━━━━━━━━\n"
                            f"🎰 **Last Result:** Number `{current_num}` ({actual_outcome})\n"
                            f"📊 **Win/Lose Status:** {status_text}\n"
                            f"💵 **BET AMOUNT:** `{current_amount:,} MMK` (Step {martingale_index + 1})\n"
-                           f"📈 **WINRATE:** `{win_rate:.1f}%`\n"
-                           f"📉 **MAX LOSE:** `{max_losses} ကြိမ်` (Current Lose: `{losses_count}`)\n"
+                           f"📈 **ACTUAL WINRATE:** `{win_rate:.1f}%` (W: {actual_bet_wins} / L: {actual_bet_losses})\n"
+                           f"📉 **LOSS TRACKER:** Max Lose `{actual_max_losses}` ကြိမ် | Current Lose `{actual_current_losses}` ကြိမ်\n"
                            f"⏱️ **Server Time:** `{server_time}`\n"
                            f"━━━━━━━━━━━━━━━━━━")
                     
@@ -180,10 +205,10 @@ def check_and_process():
         print(f"Connection Waiting: {e}")
 
 def realtime_loop():
-    print("AZBT Real-Sync Engine Active with GetEmerdList API...")
+    print("AZBT Real-Sync Engine Active with WIN Trophy Banner...")
     while True:
         check_and_process()
-        time.sleep(2) # 2 စက္ကန့်တစ်ခါ ဆာဗာကို တိုက်ရိုက် Sync လုပ်မည်
+        time.sleep(2)
 
 # =====================================================================
 # 4. RUN ENGINE
