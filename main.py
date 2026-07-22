@@ -57,35 +57,38 @@ def send_msg(text):
             print(f"Send Error: {e}")
 
 # ==========================================
-# 3. PREDICTION LOGIC
+# 3. OVERDUE GAP PREDICTION LOGIC
 # ==========================================
-def calculate_v41_prediction(data_list, history):
+def calculate_overdue_prediction(data_list):
     try:
-        freq_data = next((item for item in data_list if item.get("type") == 1), None)
-        if not freq_data:
-            return "WAIT"
-
-        small_100 = sum(freq_data.get(f"number_{i}", 0) for i in range(5))
-        big_100 = sum(freq_data.get(f"number_{i}", 0) for i in range(5, 10))
+        # Find Missing (type 2) and Avg Missing (type 4)
+        missing_data = next((item for item in data_list if item.get("type") == 2), None)
+        avg_missing_data = next((item for item in data_list if item.get("type") == 4), None)
         
-        if big_100 == small_100:
-            return "WAIT"
-        data100_trend = "BIG" if big_100 > small_100 else "SMALL"
+        if not missing_data or not avg_missing_data:
+            return "WAIT", 0
 
-        if len(history) == 0:
-            return data100_trend
-
-        big_10_count = sum(1 for n in history[:10] if n >= 5)
-        small_10_count = sum(1 for n in history[:10] if n < 5)
-
-        if big_10_count == small_10_count:
-            return "WAIT"
-        last10_majority = "BIG" if big_10_count > small_10_count else "SMALL"
-
-        return data100_trend if data100_trend == last10_majority else "WAIT"
+        max_overdue_ratio = -1
+        overdue_num = 0
+        
+        # Loop through numbers 0 to 9 to find the highest Overdue ratio
+        for i in range(10):
+            m_val = missing_data.get(f"number_{i}", 0)
+            a_val = avg_missing_data.get(f"number_{i}", 1)
+            if a_val == 0:
+                a_val = 1
+                
+            ratio = m_val / a_val
+            if ratio > max_overdue_ratio:
+                max_overdue_ratio = ratio
+                overdue_num = i
+        
+        # Determine Big or Small based on the most overdue number
+        target_group = "BIG" if overdue_num >= 5 else "SMALL"
+        return target_group, overdue_num
             
     except Exception as e:
-        return "WAIT"
+        return "WAIT", 0
 
 # ==========================================
 # 4. FAST ENGINE CORE
@@ -105,7 +108,6 @@ def check_and_process():
     }
     
     try:
-        # Fast API request using session
         response = session.post(TARGET_URL, json=payload, timeout=3)
         resp = response.json()
         
@@ -151,7 +153,8 @@ def check_and_process():
                     else:
                         status_text = "⚪ SKIPPED"
 
-                    raw_pred = calculate_v41_prediction(data_list, recent_history)
+                    # ⚡ Overdue Logic ကို ဤနေရာတွင် သုံးမည်
+                    raw_pred, overdue_num = calculate_overdue_prediction(data_list)
                     
                     final_pred = raw_pred
                     reversion_tag = ""
@@ -170,14 +173,14 @@ def check_and_process():
                         last_prediction = "WAIT"
                         current_amount = BASE_BET
                     else:
-                        display_pred = f"**{final_pred}**{reversion_tag}"
+                        display_pred = f"**{final_pred}** (Focus: {overdue_num}){reversion_tag}"
                         last_prediction = final_pred
                         current_amount = BASE_BET * MARTINGALE_STEPS[martingale_index]
 
                     if is_win_event:
                         header_banner = "🏆🏆🏆 **WIN RESULT** 🏆🏆🏆"
                     else:
-                        header_banner = "⚡ **AZBT REAL-SYNC V41.1 ENGINE** ⚡"
+                        header_banner = "⚡ **AZBT OVERDUE-SYNC ENGINE** ⚡"
 
                     msg = (f"{header_banner}\n"
                            f"━━━━━━━━━━━━━━━━━━━━\n"
@@ -198,10 +201,10 @@ def check_and_process():
         pass
 
 def realtime_loop():
-    print("AZBT Fast Engine Active...")
+    print("AZBT Overdue Fast Engine Active...")
     while True:
         check_and_process()
-        time.sleep(0.5)  # 0.5 စက္ကန့်တစ်ကြိမ် စစ်ဆေးမည် (Instant Sync)
+        time.sleep(0.5)
 
 # =====================================================================
 # 5. RUN
