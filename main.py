@@ -12,7 +12,7 @@ app = Flask('')
 
 @app.route('/')
 def home():
-    return "AZBT REAL ENGINE ACTIVE", 200
+    return "AZBT V41.1 ENGINE ACTIVE", 200
 
 # =====================================================================
 # 2. CONFIGURATION & TOKENS
@@ -31,14 +31,13 @@ MARTINGALE_STEPS = [1, 3, 8, 24, 72, 216, 648, 1944, 5832]
 martingale_index = 0
 
 last_winning_num = -1
+recent_history = []
+consecutive_losses = 0
 actual_current_losses = 0
 actual_max_losses = 0
 actual_bet_wins = 0
 actual_bet_losses = 0
 last_prediction = ""
-
-is_paused = False
-shadow_prediction = ""
 
 def send_msg(text):
     for cid in [CHAT_ID, GROUP_ID]:
@@ -48,21 +47,39 @@ def send_msg(text):
             print(f"Send Error: {e}")
 
 # ==========================================
-# 3. PREDICTION LOGIC
+# 3. V41.1 PREDICTION LOGIC (Data 100 & Last 10 Match)
 # ==========================================
-def calculate_prediction_from_grid(data_list):
+def calculate_v41_prediction(data_list, history):
     try:
         freq_data = next((item for item in data_list if item.get("type") == 1), None)
         if not freq_data:
             return "WAIT"
-            
-        small_total = sum(freq_data.get(f"number_{i}", 0) for i in range(5))
-        big_total = sum(freq_data.get(f"number_{i}", 0) for i in range(5, 10))
+
+        # 1. Data 100 Trend Calculation
+        small_100 = sum(freq_data.get(f"number_{i}", 0) for i in range(5))
+        big_100 = sum(freq_data.get(f"number_{i}", 0) for i in range(5, 10))
         
-        if big_total == small_total:
+        if big_100 == small_100:
             return "WAIT"
-        
-        return "BIG" if big_total > small_total else "SMALL"
+        data100_trend = "BIG" if big_100 > small_100 else "SMALL"
+
+        # 2. Last 10 Majority Calculation
+        if len(history) == 0:
+            return data100_trend
+
+        big_10_count = sum(1 for n in history[:10] if n >= 5)
+        small_10_count = sum(1 for n in history[:10] if n < 5)
+
+        if big_10_count == small_10_count:
+            return "WAIT"
+        last10_majority = "BIG" if big_10_count > small_10_count else "SMALL"
+
+        # 3. Pattern Matching Logic
+        if data100_trend == last10_majority:
+            return data100_trend
+        else:
+            return "WAIT"
+            
     except Exception as e:
         return "WAIT"
 
@@ -70,9 +87,10 @@ def calculate_prediction_from_grid(data_list):
 # 4. ENGINE CORE
 # ==========================================
 def check_and_process():
-    global last_winning_num, actual_current_losses, actual_max_losses
+    global last_winning_num, recent_history, consecutive_losses
+    global actual_current_losses, actual_max_losses
     global actual_bet_wins, actual_bet_losses
-    global last_prediction, martingale_index, is_paused, shadow_prediction
+    global last_prediction, martingale_index
     
     headers = {
         "Content-Type": "application/json;charset=UTF-8",
@@ -108,66 +126,65 @@ def check_and_process():
                 if current_num != -1 and current_num != last_winning_num:
                     actual_outcome = "BIG" if current_num >= 5 else "SMALL"
                     is_win_event = False
-                    
-                    if is_paused:
-                        if shadow_prediction and shadow_prediction != "WAIT" and shadow_prediction == actual_outcome:
-                            is_paused = False
+
+                    # Save to history for Last 10 Match calculation
+                    recent_history.insert(0, current_num)
+                    if len(recent_history) > 10:
+                        recent_history.pop()
+
+                    # Result Evaluation
+                    if last_prediction and last_prediction != "WAIT":
+                        if last_prediction == actual_outcome:
+                            actual_bet_wins += 1
+                            consecutive_losses = 0
                             actual_current_losses = 0
                             martingale_index = 0
-                            status_text = "🟢 RECOVERED"
+                            status_text = "🟢 WIN ✅"
                             is_win_event = True
                         else:
-                            status_text = "🟡 PAUSED"
+                            actual_bet_losses += 1
+                            consecutive_losses += 1
+                            actual_current_losses += 1
+                            
+                            if martingale_index < len(MARTINGALE_STEPS) - 1:
+                                martingale_index += 1
+                            
+                            if actual_current_losses > actual_max_losses:
+                                actual_max_losses = actual_current_losses
+                            
+                            status_text = f"🔴 LOSE ❌ ({consecutive_losses})"
                     else:
-                        if last_prediction and last_prediction != "WAIT":
-                            if last_prediction == actual_outcome:
-                                actual_bet_wins += 1
-                                actual_current_losses = 0
-                                martingale_index = 0
-                                status_text = "🟢 WIN ✅"
-                                is_win_event = True
-                            else:
-                                actual_bet_losses += 1
-                                actual_current_losses += 1
-                                
-                                if martingale_index < len(MARTINGALE_STEPS) - 1:
-                                    martingale_index += 1
-                                
-                                if actual_current_losses > actual_max_losses:
-                                    actual_max_losses = actual_current_losses
-                                
-                                is_paused = True
-                                status_text = "🔴 LOSE ❌"
-                        else:
-                            status_text = "⚪ SKIPPED"
+                        status_text = "⚪ SKIPPED"
 
-                    raw_pred = calculate_prediction_from_grid(data_list)
+                    # Raw Prediction Output
+                    raw_pred = calculate_v41_prediction(data_list, recent_history)
                     
+                    # Auto-Reversion Engine (Invert signal if 2 consecutive losses)
+                    final_pred = raw_pred
+                    reversion_tag = ""
+                    
+                    if consecutive_losses >= 2 and raw_pred != "WAIT":
+                        final_pred = "SMALL" if raw_pred == "BIG" else "BIG"
+                        reversion_tag = " 🔄 (REVERSED)"
+
                     total_actual_bets = actual_bet_wins + actual_bet_losses
                     win_rate = (actual_bet_wins / total_actual_bets * 100) if total_actual_bets > 0 else 100.0
                     
                     server_time = resp.get("serviceNowTime", "").split(' ')[-1]
                     
-                    if is_paused:
+                    if final_pred == "WAIT":
                         display_pred = "🛑 WAIT"
-                        shadow_prediction = raw_pred
-                        last_prediction = "WAIT"
-                        current_amount = BASE_BET
-                    elif raw_pred == "WAIT":
-                        display_pred = "🛑 WAIT"
-                        shadow_prediction = ""
                         last_prediction = "WAIT"
                         current_amount = BASE_BET
                     else:
-                        display_pred = f"**{raw_pred}**"
-                        shadow_prediction = ""
-                        last_prediction = raw_pred
+                        display_pred = f"**{final_pred}**{reversion_tag}"
+                        last_prediction = final_pred
                         current_amount = BASE_BET * MARTINGALE_STEPS[martingale_index]
 
                     if is_win_event:
                         header_banner = "🏆🏆🏆 **WIN RESULT** 🏆🏆🏆"
                     else:
-                        header_banner = "⚡ **AZBT REAL-SYNC ENGINE** ⚡"
+                        header_banner = "⚡ **AZBT REAL-SYNC V41.1 ENGINE** ⚡"
 
                     msg = (f"{header_banner}\n"
                            f"━━━━━━━━━━━━━━━━━━━━\n"
@@ -188,7 +205,7 @@ def check_and_process():
         print(f"Waiting: {e}")
 
 def realtime_loop():
-    print("AZBT Clean Engine Active...")
+    print("AZBT V41.1 Engine Active...")
     while True:
         check_and_process()
         time.sleep(2)
