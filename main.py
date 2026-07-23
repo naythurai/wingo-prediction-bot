@@ -12,7 +12,7 @@ app = Flask('')
 
 @app.route('/')
 def home():
-    return "AZBT FAST-SYNC ENGINE ACTIVE", 200
+    return "AZBT DIGITAL-SUM ENGINE ACTIVE", 200
 
 # =====================================================================
 # 2. CONFIGURATION & TOKENS
@@ -57,38 +57,32 @@ def send_msg(text):
             print(f"Send Error: {e}")
 
 # ==========================================
-# 3. OVERDUE GAP PREDICTION LOGIC
+# 3. DIGITAL SUM PREDICTION LOGIC
 # ==========================================
-def calculate_overdue_prediction(data_list):
-    try:
-        # Find Missing (type 2) and Avg Missing (type 4)
-        missing_data = next((item for item in data_list if item.get("type") == 2), None)
-        avg_missing_data = next((item for item in data_list if item.get("type") == 4), None)
-        
-        if not missing_data or not avg_missing_data:
-            return "WAIT", 0
+def single_digit_sum(n):
+    while n >= 10:
+        n = sum(int(digit) for digit in str(n))
+    return n
 
-        max_overdue_ratio = -1
-        overdue_num = 0
-        
-        # Loop through numbers 0 to 9 to find the highest Overdue ratio
-        for i in range(10):
-            m_val = missing_data.get(f"number_{i}", 0)
-            a_val = avg_missing_data.get(f"number_{i}", 1)
-            if a_val == 0:
-                a_val = 1
-                
-            ratio = m_val / a_val
-            if ratio > max_overdue_ratio:
-                max_overdue_ratio = ratio
-                overdue_num = i
-        
-        # Determine Big or Small based on the most overdue number
-        target_group = "BIG" if overdue_num >= 5 else "SMALL"
-        return target_group, overdue_num
-            
+def calculate_digital_sum_prediction(last_period_str):
+    try:
+        # 1. လာမည့်မိနစ်ကို တွက်ချက်ခြင်း (Current Time minute sum)
+        current_minute = time.localtime().tm_min
+        s_min = single_digit_sum(current_minute)
+
+        # 2. ပြီးခဲ့တဲ့ Period နံပါတ်ကို တွက်ချက်ခြင်း (Last period last 2 digits sum)
+        last_two_digits = int(last_period_str[-2:])
+        s_per = single_digit_sum(last_two_digits)
+
+        # 3. ရလဒ်ဖော်ထုတ်ခြင်း
+        tot = single_digit_sum(s_min + s_per)
+
+        target_group = "BIG" if tot in [5, 6, 7, 8, 9] else "SMALL"
+        color = "🔴" if tot % 2 == 0 else "🟢"
+
+        return target_group, color, tot
     except Exception as e:
-        return "WAIT", 0
+        return "WAIT", "⚪", 0
 
 # ==========================================
 # 4. FAST ENGINE CORE
@@ -114,6 +108,11 @@ def check_and_process():
         if response.status_code == 200 and resp.get("code") == 0 and resp.get("data"):
             data_list = resp["data"]
             missing_data = next((item for item in data_list if item.get("type") == 2), None)
+            
+            # API မှ ထွက်ပြီးသား Period စာရင်းကို ရယူရန်
+            # (Note: တကယ်လို့ API ထဲမှာ list တွေပါရင် အဲဒီထဲက ယူရပါမယ်။ ဥပမာအနေနဲ့ issueNumber ကို ယူသုံးသည်)
+            # အကယ်၍ API ထဲမှာ period/issue field ပါလာပါက ၄င်းကိုသုံးရန်။
+            current_period_str = str(int(time.time())) # Fallback period string
             
             if missing_data:
                 current_num = -1
@@ -153,8 +152,8 @@ def check_and_process():
                     else:
                         status_text = "⚪ SKIPPED"
 
-                    # ⚡ Overdue Logic ကို ဤနေရာတွင် သုံးမည်
-                    raw_pred, overdue_num = calculate_overdue_prediction(data_list)
+                    # ⚡ Digital Sum Logic ကို ဤနေရာတွင် သုံးမည်
+                    raw_pred, pred_color, total_sum = calculate_digital_sum_prediction(current_period_str)
                     
                     final_pred = raw_pred
                     reversion_tag = ""
@@ -173,14 +172,14 @@ def check_and_process():
                         last_prediction = "WAIT"
                         current_amount = BASE_BET
                     else:
-                        display_pred = f"**{final_pred}** (Focus: {overdue_num}){reversion_tag}"
+                        display_pred = f"**{final_pred}** {pred_color} (Sum: {total_sum}){reversion_tag}"
                         last_prediction = final_pred
                         current_amount = BASE_BET * MARTINGALE_STEPS[martingale_index]
 
                     if is_win_event:
                         header_banner = "🏆🏆🏆 **WIN RESULT** 🏆🏆🏆"
                     else:
-                        header_banner = "⚡ **AZBT OVERDUE-SYNC ENGINE** ⚡"
+                        header_banner = "⚡ **AZBT DIGITAL-SUM ENGINE** ⚡"
 
                     msg = (f"{header_banner}\n"
                            f"━━━━━━━━━━━━━━━━━━━━\n"
@@ -201,7 +200,7 @@ def check_and_process():
         pass
 
 def realtime_loop():
-    print("AZBT Overdue Fast Engine Active...")
+    print("AZBT Digital-Sum Fast Engine Active...")
     while True:
         check_and_process()
         time.sleep(0.5)
