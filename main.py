@@ -21,8 +21,8 @@ TOKEN = "8877327172:AAEJ5BHMEHRm82a4gBBRkaRmkSmn_IFl7LY"
 CHAT_ID = "5491984866"
 GROUP_ID = "-1003803779601"
 
-TARGET_URL = "https://api.bigwinqaz.com/api/webapi/GetEmerdList"
-AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0NjkwNjc3IiwibmJmIjoiMTc4NDY5MDY3NyIsImV4cGlyYXRpb24iOiI3LzIyLzIwMjYgMTA6MjQ6MzcgQU0iLCJyb2xlIjoiQWNjZXNzX1Rva2VuIiwidXNlcmlkIjo2MDU2MzIsInVzZXJuYW1lIjoiOTU5OTY2NTAyNjk1IiwidXNlcnBob3RvIjoiMSIsIm5pY2tuYW1lIjoiTWVtYmVyTk5HQ0FLWk4iLCJhbW91bnQiOiI2LjAwIiwiaW50ZWdyYWwiOiIwIiwibG9naW5tYXJrIjoiSDUiLCJsb2dpbnRpbWUiOiI3LzIyLzIwMjYgOTo1NDozNyBBTSIsImxvZ2luaXBhZGRyZXNzIjoiODIuMjEuODQuODIiLCJkYm51bWJlciI6IjAiLCJpc3ZhbGlkYXRvciI6IjAiLCJrZXljb2RlIjoiMTA0IiwidG9rZW50eXBlIjoiQWNjZXNzX1Rva2VuIiwicGhvbmV0eXBlIjoiMSIsInVzZXJUeXBlIjoiMCIsInVzZXJOYW1lMiI6IiIsImlzcyI6Imp3dElzc3VlciIsImF1ZCI6ImxvdHRlcnlUaWNrZXQifQ.pjZp8XV4YcZxWFPNhkaJ0z3p8qJx3bjIja1id7QAaow"
+TARGET_URL = "https://api.bigwinqaz.com/api/webapi/GetNoaverageEmerdList"
+AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0NzY2MTQ1IiwibmJmIjoiMTc4NDc2NjE0NSIsImV4cCI6IjE3ODQ3Njc5NDUiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzIzLzIwMjYgNzoyMjoyNSBBTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjYwNTYzMiIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQ0FLWk4iLCJBbW91bnQiOiI2LjAwIiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI3LzIzLzIwMjYgNjo1MjoyNSBBTSIsImxvZ2luSVBBZGRyZXNzIjoiODIuMjEuODQuMTY3IiwiRGJOdW1iZXIiOiIwIiwiSXN2YWxpZGF0b3IiOiIwIiwiS2V5Q29kZSI6IjEwOCIsIlRva2VuVHlwZSI6IjEiLCJQaG9uZVR5cGUiOiIxIiwiVXNlclR5cGUiOiIwIiwiVXNlck5hbWUyIjoiIiwipc3MiOiJqd3RJc3N1ZXIiLCJhdWQiOiJsb3R0ZXJ5VGlja2V0In0.Qf_n3paiDbTmfn8wFQC76zWU6stRLm9MR1mVH4C8zO8"
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -40,8 +40,7 @@ BASE_BET = 100
 MARTINGALE_STEPS = [1, 3, 8, 24, 72, 216, 648, 1944, 5832]
 martingale_index = 0
 
-last_winning_num = -1
-recent_history = []
+last_checked_issue = ""
 consecutive_losses = 0
 actual_current_losses = 0
 actual_max_losses = 0
@@ -66,11 +65,11 @@ def single_digit_sum(n):
 
 def calculate_digital_sum_prediction(last_period_str):
     try:
-        # 1. လာမည့်မိနစ်ကို တွက်ချက်ခြင်း (Current Time minute sum)
+        # 1. လာမည့်မိနစ်ကို တွက်ချက်ခြင်း
         current_minute = time.localtime().tm_min
         s_min = single_digit_sum(current_minute)
 
-        # 2. ပြီးခဲ့တဲ့ Period နံပါတ်ကို တွက်ချက်ခြင်း (Last period last 2 digits sum)
+        # 2. ပြီးခဲ့တဲ့ Period နံပါတ်၏ နောက်ဆုံး ၂ လုံးကို တွက်ချက်ခြင်း
         last_two_digits = int(last_period_str[-2:])
         s_per = single_digit_sum(last_two_digits)
 
@@ -88,16 +87,18 @@ def calculate_digital_sum_prediction(last_period_str):
 # 4. FAST ENGINE CORE
 # ==========================================
 def check_and_process():
-    global last_winning_num, recent_history, consecutive_losses
+    global last_checked_issue, consecutive_losses
     global actual_current_losses, actual_max_losses
     global actual_bet_wins, actual_bet_losses
     global last_prediction, martingale_index
     
     payload = {
+        "pageSize": 10,
+        "pageNo": 1,
         "typeId": 30,
         "language": 7,
-        "random": "eb86d837aa1c4edd956e11b69bce20c4",
-        "signature": "DB0AE80547464D7EA5C377F7B4BECB74",
+        "random": "01af5df2589a44068d5f6c4afd9c7909",
+        "signature": "4E92D41CCD35B460214225B802C38496",
         "timestamp": int(time.time())
     }
     
@@ -106,28 +107,16 @@ def check_and_process():
         resp = response.json()
         
         if response.status_code == 200 and resp.get("code") == 0 and resp.get("data"):
-            data_list = resp["data"]
-            missing_data = next((item for item in data_list if item.get("type") == 2), None)
-            
-            # API မှ ထွက်ပြီးသား Period စာရင်းကို ရယူရန်
-            # (Note: တကယ်လို့ API ထဲမှာ list တွေပါရင် အဲဒီထဲက ယူရပါမယ်။ ဥပမာအနေနဲ့ issueNumber ကို ယူသုံးသည်)
-            # အကယ်၍ API ထဲမှာ period/issue field ပါလာပါက ၄င်းကိုသုံးရန်။
-            current_period_str = str(int(time.time())) # Fallback period string
-            
-            if missing_data:
-                current_num = -1
-                for i in range(10):
-                    if missing_data.get(f"number_{i}") == 0:
-                        current_num = i
-                        break
+            result_list = resp["data"].get("list", [])
+            if len(result_list) > 0:
+                # အသစ်ဆုံး ထွက်ထားသော ရလဒ်ကို ယူခြင်း
+                latest_item = result_list[0]
+                current_issue = latest_item.get("issueNumber")
                 
-                if current_num != -1 and current_num != last_winning_num:
+                if current_issue != last_checked_issue:
+                    current_num = int(latest_item.get("number"))
                     actual_outcome = "BIG" if current_num >= 5 else "SMALL"
                     is_win_event = False
-
-                    recent_history.insert(0, current_num)
-                    if len(recent_history) > 10:
-                        recent_history.pop()
 
                     if last_prediction and last_prediction != "WAIT":
                         if last_prediction == actual_outcome:
@@ -152,8 +141,8 @@ def check_and_process():
                     else:
                         status_text = "⚪ SKIPPED"
 
-                    # ⚡ Digital Sum Logic ကို ဤနေရာတွင် သုံးမည်
-                    raw_pred, pred_color, total_sum = calculate_digital_sum_prediction(current_period_str)
+                    # ⚡ Digital Sum Logic ကို ဤနေရာတွင် သုံးမည် (Actual IssueNumber ကို ထည့်သွင်းတွက်ချက်သည်)
+                    raw_pred, pred_color, total_sum = calculate_digital_sum_prediction(current_issue)
                     
                     final_pred = raw_pred
                     reversion_tag = ""
@@ -184,7 +173,8 @@ def check_and_process():
                     msg = (f"{header_banner}\n"
                            f"━━━━━━━━━━━━━━━━━━━━\n"
                            f"🎯 **NEXT SIGNAL:** {display_pred}\n"
-                           f"🎰 **LAST RESULT:** `{current_num}` ({actual_outcome})\n"
+                           f"🎰 **LAST ISSUE:** `{current_issue}`\n"
+                           f"🎲 **LAST RESULT:** `{current_num}` ({actual_outcome})\n"
                            f"📊 **STATUS:** {status_text}\n"
                            f"━━━━━━━━━━━━━━━━━━━━\n"
                            f"💵 **BET:** `{current_amount:,} MMK` (Step {martingale_index + 1})\n"
@@ -194,13 +184,13 @@ def check_and_process():
                            f"━━━━━━━━━━━━━━━━━━━━")
                     
                     send_msg(msg)
-                    last_winning_num = current_num
+                    last_checked_issue = current_issue
 
     except Exception as e:
-        pass
+        print(f"Error: {e}")
 
 def realtime_loop():
-    print("AZBT Digital-Sum Fast Engine Active...")
+    print("AZBT Digital-Sum Engine with GetNoaverageEmerdList Active...")
     while True:
         check_and_process()
         time.sleep(0.5)
