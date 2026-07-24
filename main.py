@@ -21,9 +21,8 @@ TOKEN = "8877327172:AAEJ5BHMEHRm82a4gBBRkaRmkSmn_IFl7LY"
 CHAT_ID = "5491984866"
 GROUP_ID = "-1003803779601"
 
-# ⚡ API အသစ်နှင့် Header/Token အသစ်များ
 TARGET_URL = "https://ckygjf6r.com/api/webapi/GetNoaverageEmerdList"
-AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0OTA0MTE3IiwibmJmIjoiMTc4NDkwNDExNyIsImV4cCI6IjE3ODQ5MDU5MTciLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzI0LzIwMjYgOTo0MTo1NyBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvdXNlcm5hbWUiOiI5NTk5NjY1MDI2OTUiLCJVc2VyTmFtZSI6Ijk1OTk2NjUwMjY5NSIsIlVzZXJQaG90byI6IjEiLCJOaWNrTmFtZSI6Ik1lbWJlck5OR0JBQkFGIiwiQW1vdW50IjoiMTYuMjgiLCJJbnRlZ3JhbCI6IjAiLCJMb2dpbk1hcmsiOiJINSIsIkxvZ2luVGltZSI6IjcvMjQvMjAyNiA5OjExOjU3IFBNIiwiTG9naW5JUEFkZHJlc3MiOiIxMDkuMTIxLjM5LjE5OCIsIkRiTnVtYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiI0MzkiLCJUb2tlblR5cGUiOiJBY2Nlc3NfVG9rZW4iLCJQaG9uZVR5cGUiOiIxIiwiVXNlclR5cGUiOiIwIiwiVXNlck5hbWUyIjoiIiwiaXNzIjoiand0SXNzdWVyIiwiYnVkIjoibG90dGVyeVRpY2tldCJ9.4DTo9Nvr7VqHIh10oj-1rkOBrFJ9302pQQ7wyvV28cw"
+AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0OTA0MTE3IiwibmJmIjoiMTc4NDkwNDExNyIsImV4cCI6IjE3ODQ5MDU5MTciLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzI0LzIwMjYgOTo0MTo1NyBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvdXNlcm5hbWUiOiI5NTk5NjY1MDI2OTUiLCJVc2VyTmFtZSI6Ijk1OTk2NjUwMjY5NSIsIlVzZXJQaG90byI6IjEiLCJOaWNrTmFtZSI6Ik1lbWJlck5OR0JBQkFGIiwiQW1vdW50IjoiMTYuMjgiLCJJbnRlZ3JhbCI6IjAiLCJMb2dpbk1hcmsiOiJINSIsIkxvZ2luVGltZSI6IjcvMjQvMjAyNiA5OjExOjU3IFBNIiwiTG9naW5JUEFkZHJlc3MiOiIxMDkuMTIxLjM5LjE5OCIsImRiTnVtYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiI0MzkiLCJUb2tlblR5cGUiOiJBY2Nlc3NfVG9rZW4iLCJQaG9uZVR5cGUiOiIxIiwiVXNlciJUeXBlIjoiMCIsIlVzZXJOYW1lMiI6IiIsImlzcyI6nd0SXNzdWVyIiwiYnVkIjoibG90dGVyeVRpY2tldCJ9.4DTo9Nvr7VqHIh10oj-1rkOBrFJ9302pQQ7wyvV28cw"
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -95,18 +94,19 @@ def check_and_process():
     global actual_bet_wins, actual_bet_losses
     global last_prediction, martingale_index
     
+    # ⚡ Payload အသစ် (Random နှင့် Signature အသစ်)
     payload = {
         "pageSize": 10,
         "pageNo": 1,
         "typeId": 30,
         "language": 0,
-        "random": "97ae7158fb624a1c8ef94b472359370d",
-        "signature": "CBF0CF824C9E945D81C8DC631A110C1D",
+        "random": "8cebb07e87ed4bac927ee94be1b0c922",
+        "signature": "7AB4E470CB4635571D457B1B2929695B",
         "timestamp": int(time.time())
     }
     
     try:
-        response = session.post(TARGET_URL, json=payload, timeout=3)
+        response = session.post(TARGET_URL, json=payload, timeout=5)
         resp = response.json()
         
         if response.status_code == 200 and resp.get("code") == 0 and resp.get("data"):
@@ -196,7 +196,7 @@ def realtime_loop():
     print("AZBT Custom-Logic Engine Active...")
     while True:
         check_and_process()
-        time.sleep(0.5)
+        time.sleep(1)
 
 # =====================================================================
 # 5. RUN
