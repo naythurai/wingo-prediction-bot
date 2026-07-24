@@ -12,7 +12,7 @@ app = Flask('')
 
 @app.route('/')
 def home():
-    return "AZBT DIGITAL-SUM ENGINE ACTIVE", 200
+    return "AZBT CUSTOM-LOGIC ENGINE ACTIVE", 200
 
 # =====================================================================
 # 2. CONFIGURATION & TOKENS
@@ -21,8 +21,9 @@ TOKEN = "8877327172:AAEJ5BHMEHRm82a4gBBRkaRmkSmn_IFl7LY"
 CHAT_ID = "5491984866"
 GROUP_ID = "-1003803779601"
 
-TARGET_URL = "https://api.bigwinqaz.com/api/webapi/GetNoaverageEmerdList"
-AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0NzY2MTQ1IiwibmJmIjoiMTc4NDc2NjE0NSIsImV4cCI6IjE3ODQ3Njc5NDUiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzIzLzIwMjYgNzoyMjoyNSBBTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjYwNTYzMiIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQ0FLWk4iLCJBbW91bnQiOiI2LjAwIiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI3LzIzLzIwMjYgNjo1MjoyNSBBTSIsImxvZ2luSVBBZGRyZXNzIjoiODIuMjEuODQuMTY3IiwiRGJOdW1iZXIiOiIwIiwiSXN2YWxpZGF0b3IiOiIwIiwiS2V5Q29kZSI6IjEwOCIsIlRva2VuVHlwZSI6IjEiLCJQaG9uZVR5cGUiOiIxIiwiVXNlclR5cGUiOiIwIiwiVXNlck5hbWUyIjoiIiwipc3MiOiJqd3RJc3N1ZXIiLCJhdWQiOiJsb3R0ZXJ5VGlja2V0In0.Qf_n3paiDbTmfn8wFQC76zWU6stRLm9MR1mVH4C8zO8"
+# ⚡ API အသစ်နှင့် Header/Token အသစ်များ
+TARGET_URL = "https://ckygjf6r.com/api/webapi/GetNoaverageEmerdList"
+AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0OTA0MTE3IiwibmJmIjoiMTc4NDkwNDExNyIsImV4cCI6IjE3ODQ5MDU5MTciLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzI0LzIwMjYgOTo0MTo1NyBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvdXNlcm5hbWUiOiI5NTk5NjY1MDI2OTUiLCJVc2VyTmFtZSI6Ijk1OTk2NjUwMjY5NSIsIlVzZXJQaG90byI6IjEiLCJOaWNrTmFtZSI6Ik1lbWJlck5OR0JBQkFGIiwiQW1vdW50IjoiMTYuMjgiLCJJbnRlZ3JhbCI6IjAiLCJMb2dpbk1hcmsiOiJINSIsIkxvZ2luVGltZSI6IjcvMjQvMjAyNiA5OjExOjU3IFBNIiwiTG9naW5JUEFkZHJlc3MiOiIxMDkuMTIxLjM5LjE5OCIsIkRiTnVtYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiI0MzkiLCJUb2tlblR5cGUiOiJBY2Nlc3NfVG9rZW4iLCJQaG9uZVR5cGUiOiIxIiwiVXNlclR5cGUiOiIwIiwiVXNlck5hbWUyIjoiIiwiaXNzIjoiand0SXNzdWVyIiwiYnVkIjoibG90dGVyeVRpY2tldCJ9.4DTo9Nvr7VqHIh10oj-1rkOBrFJ9302pQQ7wyvV28cw"
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -32,7 +33,7 @@ session.headers.update({
     "Content-Type": "application/json;charset=UTF-8",
     "Accept": "application/json, text/plain, */*",
     "Authorization": AUTH_TOKEN,
-    "Ar-Origin": "https://www.bigwingame.cc",
+    "Ar-Origin": "https://www.cklottery.online",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 })
 
@@ -56,30 +57,32 @@ def send_msg(text):
             print(f"Send Error: {e}")
 
 # ==========================================
-# 3. DIGITAL SUM PREDICTION LOGIC
+# 3. CUSTOM PREDICTION LOGIC (Period Last 2 Digits Sum - Last Result)
 # ==========================================
-def single_digit_sum(n):
-    while n >= 10:
-        n = sum(int(digit) for digit in str(n))
-    return n
-
-def calculate_digital_sum_prediction(last_period_str):
+def calculate_custom_prediction(last_period_str, last_result_digit):
     try:
-        # 1. လာမည့်မိနစ်ကို တွက်ချက်ခြင်း
-        current_minute = time.localtime().tm_min
-        s_min = single_digit_sum(current_minute)
+        # Next Period နံပါတ်ကို တွက်ချက်ခြင်း
+        next_issue_num = int(last_period_str) + 1
+        next_period_str = str(next_issue_num)
 
-        # 2. ပြီးခဲ့တဲ့ Period နံပါတ်၏ နောက်ဆုံး ၂ လုံးကို တွက်ချက်ခြင်း
-        last_two_digits = int(last_period_str[-2:])
-        s_per = single_digit_sum(last_two_digits)
+        # ၁။ Period နံပါတ်၏ နောက်ဆုံးနှစ်လုံးကို ပေါင်းခြင်း
+        last_two_sum = int(next_period_str[-2]) + int(next_period_str[-1])
 
-        # 3. ရလဒ်ဖော်ထုတ်ခြင်း
-        tot = single_digit_sum(s_min + s_per)
+        # ၂။ ရလာသည့် အဖြေထဲမှ နောက်ဆုံး Result ဂဏန်းကို နုတ်ခြင်း
+        calc_result = last_two_sum - last_result_digit
 
-        target_group = "BIG" if tot in [5, 6, 7, 8, 9] else "SMALL"
-        color = "🔴" if tot % 2 == 0 else "🟢"
+        # ၃။ Absolute ယူပြီး နောက်ဆုံးဂဏန်းကို စစ်ဆေးခြင်း
+        final_digit = abs(calc_result) % 10
 
-        return target_group, color, tot
+        # 0, 1, 2, 3, 4 -> သေး (SMALL) | 5, 6, 7, 8, 9 -> ကြီး (BIG)
+        if final_digit in [0, 1, 2, 3, 4]:
+            target_group = "SMALL"
+            color = "🟢"
+        else:
+            target_group = "BIG"
+            color = "🔴"
+
+        return target_group, color, final_digit
     except Exception as e:
         return "WAIT", "⚪", 0
 
@@ -96,9 +99,9 @@ def check_and_process():
         "pageSize": 10,
         "pageNo": 1,
         "typeId": 30,
-        "language": 7,
-        "random": "01af5df2589a44068d5f6c4afd9c7909",
-        "signature": "4E92D41CCD35B460214225B802C38496",
+        "language": 0,
+        "random": "97ae7158fb624a1c8ef94b472359370d",
+        "signature": "CBF0CF824C9E945D81C8DC631A110C1D",
         "timestamp": int(time.time())
     }
     
@@ -141,8 +144,8 @@ def check_and_process():
                     else:
                         status_text = "⚪ SKIPPED"
 
-                    # ⚡ Digital Sum Logic ကို ဤနေရာတွင် သုံးမည် (Actual IssueNumber ကို ထည့်သွင်းတွက်ချက်သည်)
-                    raw_pred, pred_color, total_sum = calculate_digital_sum_prediction(current_issue)
+                    # ⚡ Custom Prediction Logic ကို ဤနေရာတွင် သုံးမည်
+                    raw_pred, pred_color, final_digit = calculate_custom_prediction(current_issue, current_num)
                     
                     final_pred = raw_pred
                     reversion_tag = ""
@@ -161,14 +164,14 @@ def check_and_process():
                         last_prediction = "WAIT"
                         current_amount = BASE_BET
                     else:
-                        display_pred = f"**{final_pred}** {pred_color} (Sum: {total_sum}){reversion_tag}"
+                        display_pred = f"**{final_pred}** {pred_color} (Digit: {final_digit}){reversion_tag}"
                         last_prediction = final_pred
                         current_amount = BASE_BET * MARTINGALE_STEPS[martingale_index]
 
                     if is_win_event:
                         header_banner = "🏆🏆🏆 **WIN RESULT** 🏆🏆🏆"
                     else:
-                        header_banner = "⚡ **AZBT DIGITAL-SUM ENGINE** ⚡"
+                        header_banner = "⚡ **AZBT CUSTOM-LOGIC ENGINE** ⚡"
 
                     msg = (f"{header_banner}\n"
                            f"━━━━━━━━━━━━━━━━━━━━\n"
@@ -190,7 +193,7 @@ def check_and_process():
         print(f"Error: {e}")
 
 def realtime_loop():
-    print("AZBT Digital-Sum Engine with GetNoaverageEmerdList Active...")
+    print("AZBT Custom-Logic Engine Active...")
     while True:
         check_and_process()
         time.sleep(0.5)
