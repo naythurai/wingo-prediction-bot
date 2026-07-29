@@ -22,7 +22,7 @@ CHAT_ID = "5491984866"
 GROUP_ID = "-1003803779601"
 
 TARGET_URL = "https://api.bigwinqaz.com/api/webapi/GetNoaverageEmerdList"
-AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg1MzA5MzAyIiwibmJmIjoiMTc4NTMwOTMwMiIsImV4cCI6IjE3ODUzMTExMDIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzI5LzIwMjYgMjoxNTowMiBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjYwNTYzMiIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQ0FLWk4iLCJBbW91bnQiOiI0LjAwIiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI3LzI5LzIwMjYgMTo0NTowMiBQTSIsIkxvZ2luSVBBZGRyZXNzIjoiNDUuMTk2LjE2LjIzNyIsImRiTnVtYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiIxMzciLCJUb2tlblR5cGUiOiJBY2Nlc3NfVG9rZW4iLCJQaG9uZVR5cGUiOiIxIiwiVXNlciJUeXBlIjoiMCIsIlVzZXJOYW1lMiI6IiIsImlzcyI6nd0SXNzdWVyIiwiYXVkIjoibG90dGVyeVRpY2tldCJ9.zJh3XG2q9a40dCQ3z1tm8oUvvh1iVgeNE93RyIAP6CQ"
+AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg1MzA5MzAyIiwibmJmIjoiMTc4NTMwOTMwMiIsImV4cCI6IjE3ODUzMTExMDIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzI5LzIwMjYgMjoxNTowMiBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjYwNTYzMiIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQ0FLWk4iLCJBbW91bnQiOiI0LjAwIiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI3LzI5LzIwMjYgMTo0NTowMiBQTSIsIkxvZ2luSVBBZGRyZXNzIjoiNDUuMTk2LjE2LjIzNyIsIkRiTnVtYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiIxMzciLCJUb2tlblR5cGUiOiJBY2Nlc3NfVG9rZW4iLCJQaG9uZVR5cGUiOiIxIiwiVXNlciJUeXBlIjoiMCIsIlVzZXJOYW1lMiI6IiIsImlzcyI6nd0SXNzdWVyIiwiYXVkIjoibG90dGVyeVRpY2tldCJ9.zJh3XG2q9a40dCQ3z1tm8oUvvh1iVgeNE93RyIAP6CQ"
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -137,15 +137,8 @@ def check_and_process():
                     else:
                         status_text = "⚪ SKIPPED"
 
-                    # ⚡ Custom Prediction Logic (Period နောက်ဆုံးနံပါတ် 0-4 Small, 5-9 Big)
-                    raw_pred, pred_color, last_digit = calculate_custom_prediction(current_issue)
-                    
-                    final_pred = raw_pred
-                    reversion_tag = ""
-                    
-                    if consecutive_losses >= 2 and raw_pred != "WAIT":
-                        final_pred = "SMALL" if raw_pred == "BIG" else "BIG"
-                        reversion_tag = " 🔄 (REVERSED)"
+                    # ⚡ Custom Prediction Logic (Period နောက်ဆုံးနံပါတ် 0-4 Small, 5-9 Big - Reversed လုံးဝမပါပါ)
+                    final_pred, pred_color, last_digit = calculate_custom_prediction(current_issue)
 
                     total_actual_bets = actual_bet_wins + actual_bet_losses
                     win_rate = (actual_bet_wins / total_actual_bets * 100) if total_actual_bets > 0 else 100.0
@@ -157,7 +150,7 @@ def check_and_process():
                         last_prediction = "WAIT"
                         current_amount = BASE_BET
                     else:
-                        display_pred = f"**{final_pred}** {pred_color} (Period Digit: {last_digit}){reversion_tag}"
+                        display_pred = f"**{final_pred}** {pred_color} (Period Digit: {last_digit})"
                         last_prediction = final_pred
                         current_amount = BASE_BET * MARTINGALE_STEPS[martingale_index]
 
