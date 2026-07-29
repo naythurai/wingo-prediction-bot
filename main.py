@@ -21,8 +21,8 @@ TOKEN = "8877327172:AAEJ5BHMEHRm82a4gBBRkaRmkSmn_IFl7LY"
 CHAT_ID = "5491984866"
 GROUP_ID = "-1003803779601"
 
-TARGET_URL = "https://ckygjf6r.com/api/webapi/GetNoaverageEmerdList"
-AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg0OTA0MTE3IiwibmJmIjoiMTc4NDkwNDExNyIsImV4cCI6IjE3ODQ5MDU5MTciLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzI0LzIwMjYgOTo0MTo1NyBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjQ5NTM3MSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvdXNlcm5hbWUiOiI5NTk5NjY1MDI2OTUiLCJVc2VyTmFtZSI6Ijk1OTk2NjUwMjY5NSIsIlVzZXJQaG90byI6IjEiLCJOaWNrTmFtZSI6Ik1lbWJlck5OR0JBQkFGIiwiQW1vdW50IjoiMTYuMjgiLCJJbnRlZ3JhbCI6IjAiLCJMb2dpbk1hcmsiOiJINSIsIkxvZ2luVGltZSI6IjcvMjQvMjAyNiA5OjExOjU3IFBNIiwiTG9naW5JUEFkZHJlc3MiOiIxMDkuMTIxLjM5LjE5OCIsImRiTnVtYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiI0MzkiLCJUb2tlblR5cGUiOiJBY2Nlc3NfVG9rZW4iLCJQaG9uZVR5cGUiOiIxIiwiVXNlciJUeXBlIjoiMCIsIlVzZXJOYW1lMiI6IiIsImlzcyI6nd0SXNzdWVyIiwiYnVkIjoibG90dGVyeVRpY2tldCJ9.4DTo9Nvr7VqHIh10oj-1rkOBrFJ9302pQQ7wyvV28cw"
+TARGET_URL = "https://api.bigwinqaz.com/api/webapi/GetNoaverageEmerdList"
+AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg1MzA5MzAyIiwibmJmIjoiMTc4NTMwOTMwMiIsImV4cCI6IjE3ODUzMTExMDIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzI5LzIwMjYgMjoxNTowMiBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjYwNTYzMiIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQ0FLWk4iLCJBbW91bnQiOiI0LjAwIiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI3LzI5LzIwMjYgMTo0NTowMiBQTSIsIkxvZ2luSVBBZGRyZXNzIjoiNDUuMTk2LjE2LjIzNyIsImRiTnVtYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiIxMzciLCJUb2tlblR5cGUiOiJBY2Nlc3NfVG9rZW4iLCJQaG9uZVR5cGUiOiIxIiwiVXNlciJUeXBlIjoiMCIsIlVzZXJOYW1lMiI6IiIsImlzcyI6nd0SXNzdWVyIiwiYXVkIjoibG90dGVyeVRpY2tldCJ9.zJh3XG2q9a40dCQ3z1tm8oUvvh1iVgeNE93RyIAP6CQ"
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -32,7 +32,7 @@ session.headers.update({
     "Content-Type": "application/json;charset=UTF-8",
     "Accept": "application/json, text/plain, */*",
     "Authorization": AUTH_TOKEN,
-    "Ar-Origin": "https://www.cklottery.online",
+    "Ar-Origin": "https://www.bigwingame.cc",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 })
 
@@ -56,32 +56,26 @@ def send_msg(text):
             print(f"Send Error: {e}")
 
 # ==========================================
-# 3. CUSTOM PREDICTION LOGIC (Period Last 2 Digits Sum - Last Result)
+# 3. CUSTOM PREDICTION LOGIC (Period Last Digit Check)
 # ==========================================
-def calculate_custom_prediction(last_period_str, last_result_digit):
+def calculate_custom_prediction(last_period_str):
     try:
         # Next Period နံပါတ်ကို တွက်ချက်ခြင်း
         next_issue_num = int(last_period_str) + 1
         next_period_str = str(next_issue_num)
 
-        # ၁။ Period နံပါတ်၏ နောက်ဆုံးနှစ်လုံးကို ပေါင်းခြင်း
-        last_two_sum = int(next_period_str[-2]) + int(next_period_str[-1])
-
-        # ၂။ ရလာသည့် အဖြေထဲမှ နောက်ဆုံး Result ဂဏန်းကို နုတ်ခြင်း
-        calc_result = last_two_sum - last_result_digit
-
-        # ၃။ Absolute ယူပြီး နောက်ဆုံးဂဏန်းကို စစ်ဆေးခြင်း
-        final_digit = abs(calc_result) % 10
+        # Period နောက်ဆုံးဂဏန်းကို ယူခြင်း
+        last_digit = int(next_period_str[-1])
 
         # 0, 1, 2, 3, 4 -> သေး (SMALL) | 5, 6, 7, 8, 9 -> ကြီး (BIG)
-        if final_digit in [0, 1, 2, 3, 4]:
+        if last_digit in [0, 1, 2, 3, 4]:
             target_group = "SMALL"
             color = "🟢"
         else:
             target_group = "BIG"
             color = "🔴"
 
-        return target_group, color, final_digit
+        return target_group, color, last_digit
     except Exception as e:
         return "WAIT", "⚪", 0
 
@@ -94,14 +88,13 @@ def check_and_process():
     global actual_bet_wins, actual_bet_losses
     global last_prediction, martingale_index
     
-    # ⚡ Payload အသစ် (Random နှင့် Signature အသစ်)
     payload = {
         "pageSize": 10,
         "pageNo": 1,
         "typeId": 30,
-        "language": 0,
-        "random": "8cebb07e87ed4bac927ee94be1b0c922",
-        "signature": "7AB4E470CB4635571D457B1B2929695B",
+        "language": 7,
+        "random": "bfb7722196414c308822378d5324d90e",
+        "signature": "78F869690E499C1E3555D1D79306AF20",
         "timestamp": int(time.time())
     }
     
@@ -144,8 +137,8 @@ def check_and_process():
                     else:
                         status_text = "⚪ SKIPPED"
 
-                    # ⚡ Custom Prediction Logic ကို ဤနေရာတွင် သုံးမည်
-                    raw_pred, pred_color, final_digit = calculate_custom_prediction(current_issue, current_num)
+                    # ⚡ Custom Prediction Logic (Period နောက်ဆုံးနံပါတ် 0-4 Small, 5-9 Big)
+                    raw_pred, pred_color, last_digit = calculate_custom_prediction(current_issue)
                     
                     final_pred = raw_pred
                     reversion_tag = ""
@@ -164,7 +157,7 @@ def check_and_process():
                         last_prediction = "WAIT"
                         current_amount = BASE_BET
                     else:
-                        display_pred = f"**{final_pred}** {pred_color} (Digit: {final_digit}){reversion_tag}"
+                        display_pred = f"**{final_pred}** {pred_color} (Period Digit: {last_digit}){reversion_tag}"
                         last_prediction = final_pred
                         current_amount = BASE_BET * MARTINGALE_STEPS[martingale_index]
 
