@@ -22,7 +22,7 @@ CHAT_ID = "5491984866"
 GROUP_ID = "-1003803779601"
 
 TARGET_URL = "https://api.bigwinqaz.com/api/webapi/GetNoaverageEmerdList"
-AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg1MzA5MzAyIiwibmJmIjoiMTc4NTMwOTMwMiIsImV4cCI6IjE3ODUzMTExMDIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzI5LzIwMjYgMjoxNTowMiBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjYwNTYzMiIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQ0FLWk4iLCJBbW91bnQiOiI0LjAwIiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI3LzI5LzIwMjYgMTo0NTowMiBQTSIsIkxvZ2luSVBBZGRyZXNzIjoiNDUuMTk2LjE2LjIzNyIsIkRiTnVtYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiIxMzciLCJUb2tlblR5cGUiOiJBY2Nlc3NfVG9rZW4iLCJQaG9uZVR5cGUiOiIxIiwiVXNlciJUeXBlIjoiMCIsIlVzZXJOYW1lMiI6IiIsImlzcyI6nd0SXNzdWVyIiwiYXVkIjoibG90dGVyeVRpY2tldCJ9.zJh3XG2q9a40dCQ3z1tm8oUvvh1iVgeNE93RyIAP6CQ"
+AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg1MzA5MzAyIiwibmJmIjoiMTc4NTMwOTMwMiIsImV4cCI6IjE3ODUzMTExMDIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzI5LzIwMjYgMjoxNTowMiBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjYwNTYzMiIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQ0FLWk4iLCJBbW91bnQiOiI0LjAwIiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI3LzI5LzIwMjYgMTo0NTowMiBQTSIsIkxvZ2luSVBBZGRyZXNzIjoiNDUuMTk2LjE2LjIzNyIsImRiTnVtYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiIxMzciLCJUb2tlblR5cGUiOiJBY2Nlc3NfVG9rZW4iLCJQaG9uZVR5cGUiOiIxIiwiVXNlciJUeXBlIjoiMCIsIlVzZXJOYW1lMiI6IiIsImlzcyI6nd0SXNzdWVyIiwiYXVkIjoibG90dGVyeVRpY2tldCJ9.zJh3XG2q9a40dCQ3z1tm8oUvvh1iVgeNE93RyIAP6CQ"
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -56,7 +56,7 @@ def send_msg(text):
             print(f"Send Error: {e}")
 
 # ==========================================
-# 3. CUSTOM PREDICTION LOGIC (Period Last Digit Check)
+# 3. CUSTOM PREDICTION LOGIC (Period Last Digit 0 or 5 Check)
 # ==========================================
 def calculate_custom_prediction(last_period_str):
     try:
@@ -67,15 +67,19 @@ def calculate_custom_prediction(last_period_str):
         # Period နောက်ဆုံးဂဏန်းကို ယူခြင်း
         last_digit = int(next_period_str[-1])
 
-        # 0, 1, 2, 3, 4 -> သေး (SMALL) | 5, 6, 7, 8, 9 -> ကြီး (BIG)
-        if last_digit in [0, 1, 2, 3, 4]:
-            target_group = "SMALL"
-            color = "🟢"
+        # Period နောက်ဆုံးဂဏန်း 0 သို့မဟုတ် 5 ဖြစ်မှသာ Predation ထုတ်မည် (ကျန်သည်များကို WAIT စေမည်)
+        if last_digit == 0 or last_digit == 5:
+            # 0 ဆိုရင် Small, 5 ဆိုရင် Big (သို့မဟုတ် လိုအပ်သလို သတ်မှတ်ချက်အတိုင်း 0-4 Small, 5-9 Big)
+            if last_digit in [0, 1, 2, 3, 4]:
+                target_group = "SMALL"
+                color = "🟢"
+            else:
+                target_group = "BIG"
+                color = "🔴"
+            return target_group, color, last_digit
         else:
-            target_group = "BIG"
-            color = "🔴"
-
-        return target_group, color, last_digit
+            return "WAIT", "⚪", last_digit
+            
     except Exception as e:
         return "WAIT", "⚪", 0
 
@@ -137,7 +141,7 @@ def check_and_process():
                     else:
                         status_text = "⚪ SKIPPED"
 
-                    # ⚡ Custom Prediction Logic (Period နောက်ဆုံးနံပါတ် 0-4 Small, 5-9 Big - Reversed လုံးဝမပါပါ)
+                    # ⚡ Custom Prediction Logic (Period နောက်ဆုံးနံပါတ် 0 သို့မဟုတ် 5 မှသာ Signal ထုတ်မည်)
                     final_pred, pred_color, last_digit = calculate_custom_prediction(current_issue)
 
                     total_actual_bets = actual_bet_wins + actual_bet_losses
@@ -146,7 +150,7 @@ def check_and_process():
                     server_time = resp.get("serviceNowTime", "").split(' ')[-1]
                     
                     if final_pred == "WAIT":
-                        display_pred = "🛑 WAIT"
+                        display_pred = "🛑 WAIT (Period Digit: " + str(last_digit) + ")"
                         last_prediction = "WAIT"
                         current_amount = BASE_BET
                     else:
