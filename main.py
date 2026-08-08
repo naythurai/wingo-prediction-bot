@@ -4,7 +4,6 @@ import requests
 import telebot
 from threading import Thread
 from flask import Flask
-from datetime import datetime
 
 # =====================================================================
 # 1. FLASK APPLICATION
@@ -13,7 +12,7 @@ app = Flask('')
 
 @app.route('/')
 def home():
-    return "AZBT TREND ANALYZER ENGINE ACTIVE", 200
+    return "AZBT LIVE TREND MONITOR ACTIVE", 200
 
 # =====================================================================
 # 2. CONFIGURATION & TOKENS
@@ -39,10 +38,7 @@ session.headers.update({
 
 last_checked_issue = ""
 recent_outcomes = []
-
-# Trend ငြိမ်ချိန်များကို မှတ်တမ်းတင်ရန်
-stable_trend_logs = []
-last_trend_status = "UNKNOWN"
+last_logged_trend_state = False
 
 def send_msg(text):
     for cid in [CHAT_ID, GROUP_ID]:
@@ -52,46 +48,29 @@ def send_msg(text):
             print(f"Send Error: {e}")
 
 # ==========================================
-# 3. STABLE TREND DETECTOR & TIME LOGGER
+# 3. PURE STABLE TREND ANALYZER
 # ==========================================
-def analyze_market_trend(outcome_history, current_time_str):
-    global last_trend_status, stable_trend_logs
-    
+def analyze_market_trend(outcome_history):
     if len(outcome_history) >= 6:
         last_few = outcome_history[-6:]
         
-        # 1. Streak Trend (နောက်ဆုံး ၃ ခု တူနေခြင်း - ဥပမာ BIG ဆက်တိုက် သို့မဟုတ် SMALL ဆက်တိုက်)
+        # 1. Streak Trend (နောက်ဆုံး ၃ ခု တူနေခြင်း - ဥပမာ BIG သို့မဟုတ် SMALL ဆက်တိုက်)
         all_same = all(x == last_few[-1] for x in last_few[-3:])
         if all_same:
-            current_status = f"STABLE (Streak: {last_few[-1]})"
-            if last_trend_status != current_status:
-                log_entry = f"⏰ အချိန်: `{current_time_str}` | 🔍 Trend ငြိမ်နေသည်: `{current_status}`"
-                stable_trend_logs.append(log_entry)
-                if len(stable_trend_logs) > 10:
-                    stable_trend_logs.pop(0)
-                last_trend_status = current_status
-            return "STABLE_STREAK", last_few[-1]
+            return True, f"STREAK ({last_few[-1]})"
 
         # 2. Ping-Pong Trend (တစ်လှည့်စီ ထွက်နေခြင်း - ဥပမာ BIG, SMALL, BIG, SMALL)
         is_ping_pong = (last_few[-1] != last_few[-2]) and (last_few[-2] != last_few[-3]) and (last_few[-3] != last_few[-4])
         if is_ping_pong:
-            current_status = "STABLE (Ping-Pong Alternating)"
-            if last_trend_status != current_status:
-                log_entry = f"⏰ အချိန်: `{current_time_str}` | 🔍 Trend ငြိမ်နေသည်: `{current_status}`"
-                stable_trend_logs.append(log_entry)
-                if len(stable_trend_logs) > 10:
-                    stable_trend_logs.pop(0)
-                last_trend_status = current_status
-            return "STABLE_PING_PONG", "ALTERNATING"
+            return True, "PING-PONG (Alternating)"
 
-    last_trend_status = "UNSTABLE"
-    return "UNSTABLE", "NONE"
+    return False, "UNSTABLE"
 
 # ==========================================
-# 4. FAST ENGINE CORE (NO PREDICTION, ONLY TREND & TIME TRACKING)
+# 4. FAST ENGINE CORE
 # ==========================================
 def check_and_process():
-    global last_checked_issue, recent_outcomes
+    global last_checked_issue, recent_outcomes, last_logged_trend_state
     
     payload = {
         "pageSize": 10,
@@ -123,18 +102,22 @@ def check_and_process():
 
                     server_time = resp.get("serviceNowTime", "").split(' ')[-1]
                     
-                    # Trend ငြိမ်ချိန်ကို စစ်ဆေးခြင်း
-                    trend_type, trend_detail = analyze_market_trend(recent_outcomes, server_time)
+                    # Trend ငြိမ်မှု ရှိမရှိ စစ်ဆေးခြင်း
+                    is_currently_stable, trend_detail = analyze_market_trend(recent_outcomes)
 
-                    # Telegram သို့ Trend ငြိမ်တဲ့အချိန်နှင့် အခြေအနေကို ပို့ပေးမည် (Prediction မထုတ်ပါ)
-                    if trend_type != "UNSTABLE":
-                        msg = (f"📊🕒 **TREND STABILITY MONITOR** 🕒📊\n"
+                    # Trend အသစ် စတင်တည်ငြိမ်သွားသည့် အချိန်ကို မှတ်သားပြီး Telegram သို့ ပို့မည်
+                    if is_currently_stable and not last_logged_trend_state:
+                        msg = (f"🟢 **STABLE TREND DETECTED** 🟢\n"
                                f"━━━━━━━━━━━━━━━━━━━━\n"
-                               f"🟢 **TRAND ငြိမ်နေသောအချိန်:** `{server_time}`\n"
-                               f"📌 **Trend ပုံစံ:** `{trend_type}` ({trend_detail})\n"
-                               f"🎰 **Issue:** `{current_issue}` | **Result:** `{current_num}` ({actual_outcome})\n"
+                               f"⏱️ **အချိန်:** `{server_time}`\n"
+                               f"🎰 **Issue:** `{current_issue}`\n"
+                               f"📊 **Trend ပုံစံ:** `{trend_detail}`\n"
+                               f"🎲 **နောက်ဆုံးထွက်ရလဒ်:** `{current_num}` ({actual_outcome})\n"
                                f"━━━━━━━━━━━━━━━━━━━━")
                         send_msg(msg)
+                        last_logged_trend_state = True
+                    elif not is_currently_stable:
+                        last_logged_trend_state = False
 
                     last_checked_issue = current_issue
 
@@ -142,7 +125,7 @@ def check_and_process():
         print(f"Error: {e}")
 
 def realtime_loop():
-    print("AZBT Trend Analyzer Engine Active...")
+    print("AZBT Live Trend Monitor Active...")
     while True:
         check_and_process()
         time.sleep(1)
