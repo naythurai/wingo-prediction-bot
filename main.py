@@ -22,7 +22,7 @@ CHAT_ID = "5491984866"
 GROUP_ID = "-1003803779601"
 
 TARGET_URL = "https://api.bigwinqaz.com/api/webapi/GetNoaverageEmerdList"
-AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg1MzA5MzAyIiwibmJmIjoiMTc4FSB0MjkzMDIiLCJleHAiOiIxNzg1MzExMDIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzI5LzIwMjYgMjoxNTowMiBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsImVzZXJJZCI6IjYwNTYzMiIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQ0FLWk4iLCJBbW91bnQiOiI0LjAwIiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI3LzI5LzIwMjYgMTo0NTowMiBQTSIsImxvZ2luSVBBZGRyZXNzIjoiNDUuMTk2LjE2LjIzNyIsImRiTnVtYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiIxMzciLCJUb2tlblR5cGUiOiJBY2Nlc3NfVG9rZW4iLCJQaG9uZVR5cGUiOiIxIiwiVXNlciJUeXBlIjoiMCIsIlVzZXJOYW1lMiI6IiIsImlzcyI6nd0SXNzdWVyIiwiYXVkIjoibG90dGVyeVRpY2tldCJ9.zJh3XG2q9a40dCQ3z1tm8oUvvh1iVgeNE93RyIAP6CQ"
+AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg1MzA5MzAyIiwibmJmIjoiMTc4FSB0MjkzMDIiLCJleHAiOiIxNzg1MzExMDIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiI3LzI5LzIwMjYgMjoxNTowMiBQTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsImVzZXJJZCI6IjYwNTYzMiIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIm5pY2tOYW1lIjoiTWVtYmVyTk5HQ0FLWk4iLCJBbW91bnQiOiI0LjAwIiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI3LzI5LzIwMjYgMTo0NTowMiBQTSIsImxvZ2luSVBBZGRyZXNzIjoiNDUuMTk2LjE2LjIzNyIsImRiTnVtYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiIxMzciLCJUb2tlblR5cGUiOiJBY2Nlc3NfVG9rZW4iLCJQaG9uZVR5cGUiOiIxIiwiVXNlciJUeXBlIjoiMCIsIlVzZXJOYW1lMiI6IiIsImlzcyI6nd0SXNzdWVyIiwiYXVkIjoibG90dGVyeVRpY2tldCJ9.zJh3XG2q9a40dCQ3z1tm8oUvvh1iVgeNE93RyIAP6CQ"
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -88,7 +88,7 @@ def check_and_process():
         
         if response.status_code == 200 and resp.get("code") == 0 and resp.get("data"):
             result_list = resp["data"].get("list", [])
-            if len(result_list) >= 6: # လုံလောက်သော အချက်အလက်ရှိရန် အနည်းဆုံး ၆ ခု လိုအပ်သည် (ယခုထွက် + အရင် ၅ ခု)
+            if len(result_list) >= 6:
                 latest_item = result_list[0]
                 current_issue = latest_item.get("issueNumber")
                 
@@ -96,23 +96,16 @@ def check_and_process():
                     current_num = int(latest_item.get("number"))
                     actual_outcome = "BIG" if current_num >= 5 else "SMALL"
                     
-                    # 💡 0 နှင့် 5 ထွက်လာခြင်း ရှိမရှိ စစ်ဆေးပြီး အရင် ၅ ခုရဲ့ Pattern ကို ယူခြင်း
-                    special_pattern_msg = ""
+                    # 💡 0 နှင့် 5 ထွက်လာလျှင် အရင် ၅ ခု၏ Pattern ကို S/B ဖြင့် ဖမ်းယူခြင်း
+                    pattern_text = ""
                     if current_num == 0 or current_num == 5:
-                        # result_list[1] မှစတင်ပြီး အရင် ၅ ခုကို ယူမည် (index 1 to 5)
-                        previous_five_items = result_list[1:6]
-                        pattern_list = []
-                        for item in previous_five_items:
+                        prev_five = result_list[1:6]
+                        p_list = []
+                        for item in prev_five:
                             num = int(item.get("number"))
-                            # B = BIG, S = SMALL အနေဖြင့် အတိုကောက်ယူရန် (သို့မဟုတ် စာသားအပြည့်လည်း သုံးနိုင်သည်)
-                            p_out = "B" if num >= 5 else "S"
-                            pattern_list.append(p_out)
-                        
-                        # စာသားပုံစံ ဖန်တီးခြင်း (ဥပမာ: S, S, B, B, S သို့မဟုတ် SS BBS)
-                        pattern_str = "".join(pattern_list)
-                        special_pattern_msg = (f"\n🎯 **SPECIAL ZERO/FIVE ALERT!** 🎯\n"
-                                               f"🔢 နံပါတ် **{current_num}** ကျလာပါသည်!\n"
-                                               f"📋 **အရင် ၅ ခု Pattern:** `{pattern_str}`\n")
+                            p_list.append("B" if num >= 5 else "S")
+                        pattern_str = "".join(p_list)
+                        pattern_text = f"\n🎯 **PATTERN (0 or 5):** `{pattern_str}`"
 
                     recent_outcomes.append(actual_outcome)
                     if len(recent_outcomes) > 15:
@@ -130,14 +123,13 @@ def check_and_process():
                                f"⏱️ **အချိန်:** `{server_time}`\n"
                                f"🎰 **Issue:** `{current_issue}`\n"
                                f"📊 **Trend ပုံစံ:** `{trend_detail}`\n"
-                               f"🎲 **နောက်ဆုံးထွက်ရလဒ်:** `{current_num}` ({actual_outcome})\n"
-                               f"{special_pattern_msg}"
+                               f"🎲 **နောက်ဆုံးထွက်ရလဒ်:** `{current_num}` ({actual_outcome})"
+                               f"{pattern_text}\n"
                                f"━━━━━━━━━━━━━━━━━━━━")
                         send_msg(msg)
                         last_logged_trend_state = True
                     elif not is_currently_stable:
                         last_logged_trend_state = False
-                        # အကယ်၍ Trend မငြိမ်ဘဲ 0 သို့မဟုတ် 5 သက်သက် ထွက်လာရင်တောင် Alert ပို့ချင်ရင် ဒီအောက်မှာ ထည့်လို့ရပါတယ်။
 
                     last_checked_issue = current_issue
 
