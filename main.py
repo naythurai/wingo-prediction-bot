@@ -15,7 +15,7 @@ def home():
     return "AZBT LIVE TREND MONITOR ACTIVE", 200
 
 # =====================================================================
-# 2. CONFIGURATION & TOKENS (UPDATED TO LATEST DATA)
+# 2. CONFIGURATION & TOKENS
 # =====================================================================
 TOKEN = "8877327172:AAEJ5BHMEHRm82a4gBBRkaRmkSmn_IFl7LY"
 CHAT_ID = "5491984866"
@@ -23,12 +23,10 @@ GROUP_ID = "-1003803779601"
 
 TARGET_URL = "https://api.bigwinqaz.com/api/webapi/GetNoaverageEmerdList"
 
-# 🔑 Updated Authorization Token from Request Headers
-AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg2NjY0NTU2IiwibmJmIjoiMTc4NjY2NDU1NiIsImV4cGlyYXRpb24iOiI4LzE0LzIwMjYgNjo0MjozNiBBTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjYwNTYzMiIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIk5pY2tOYW1lIjoiTWVtYmVyTk5HQ0FLWk4iLCJBbW91bnQiOiIzLjQwIiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI4LzE0LzIwMjYgNjoxMjozNiBBTSIsImxvZ2luSVBBZGRyZXNzIjoiODIuMjEuODQuMjA2IiwiRGJOdW1iZXIiOiIwIiwiSXN2YWxpZGF0b3IiOiIwIiwiS2V5Q29kZSI6IjE4MyIsIlRva2VuVHlwZSI6IkFjY2Vzc19Ub2tlbiIsIlBob25lVHlwZSI6IjEiLCJVc2VyVHlwZSI6IjAiLCJVc2VyTmFtZTIiOiIiLCJpc3MiOiJqd3RJc3N1ZXIiLCJhdWQiOiJsb3R0ZXJ5VGlja2V0In0.lBJsGFt9fAWyNGeN_835KPh3hO8Kkqc7UrVhpdMF1ZI"
+AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg2NjY0NTU2IiwibmJmIjoiMTc4NjY2NDU1NiIsImV4cGlyYXRpb24iOiI4LzE0LzIwMjYgNjo0MjozNiBBTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjYwNTYzMiIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIm5pY2tOYW1lIjoiTWVtYmVyTk5HQ0FLWk4iLCJBbW91bnQiOiIzLjQwIiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI4LzE0LzIwMjYgNjoxMjozNiBBTSIsImxvZ2luSVBBZGRyZXNzIjoiODIuMjEuODQuMjA2IiwiRGJOdW1iZXIiOiIwIiwiSXN2YWxpZGF0b3IiOiIwIiwiS2V5Q29kZSI6IjE4MyIsIlRva2VuVHlwZSI6IkFjY2Vzc19Ub2tlbiIsIlBob25lVHlwZSI6IjEiLCJVc2VyVHlwZSI6IjAiLCJVc2VyTmFtZTIiOiIiLCJpc3MiOiJqd3RJc3N1ZXIiLCJhdWQiOiJsb3R0ZXJ5VGlja2V0In0.lBJsGFt9fAWyNGeN_835KPh3hO8Kkqc7UrVhpdMF1ZI"
 
 bot = telebot.TeleBot(TOKEN)
 
-# ⚡ High-Speed HTTP Session
 session = requests.Session()
 session.headers.update({
     "Content-Type": "application/json;charset=UTF-8",
@@ -42,7 +40,6 @@ last_checked_issue = ""
 recent_outcomes = []
 last_logged_trend_state = False
 
-# 📊 Prediction, Win & Max Lose Trackers
 current_prediction = None
 total_wins = 0
 total_loses = 0
@@ -56,35 +53,26 @@ def send_msg(text):
         except Exception as e:
             print(f"Send Error: {e}")
 
-# ==========================================
-# 3. PURE STABLE TREND ANALYZER & PREDICTOR
-# ==========================================
 def analyze_market_trend(outcome_history):
     if len(outcome_history) >= 6:
         last_few = outcome_history[-6:]
         
-        # 1. Streak Trend (ဥပမာ: BIG သို့မဟုတ် SMALL ဆက်တိုက်)
         all_same = all(x == last_few[-1] for x in last_few[-3:])
         if all_same:
-            next_pred = last_few[-1]  # Trend အတိုင်း လိုက်ခန့်မှန်းမည်
+            next_pred = last_few[-1]
             return True, f"STREAK ({last_few[-1]})", next_pred
 
-        # 2. Ping-Pong Trend (ဥပမာ: BIG, SMALL, BIG, SMALL တစ်လှည့်စီ)
         is_ping_pong = (last_few[-1] != last_few[-2]) and (last_few[-2] != last_few[-3]) and (last_few[-3] != last_few[-4])
         if is_ping_pong:
-            next_pred = "SMALL" if last_few[-1] == "BIG" else "BIG"  # တစ်လှည့်စီ ပြောင်းခန့်မှန်းမည်
+            next_pred = "SMALL" if last_few[-1] == "BIG" else "BIG"
             return True, "PING-PONG (Alternating)", next_pred
 
     return False, "UNSTABLE", None
 
-# ==========================================
-# 4. FAST ENGINE CORE
-# ==========================================
 def check_and_process():
     global last_checked_issue, recent_outcomes, last_logged_trend_state
     global current_prediction, total_wins, total_loses, current_lose_streak, max_lose_streak
     
-    # Updated payload params from latest API request
     payload = {
         "pageSize": 10,
         "pageNo": 1,
@@ -101,7 +89,11 @@ def check_and_process():
         
         if response.status_code == 200 and resp.get("code") == 0 and resp.get("data"):
             result_list = resp["data"].get("list", [])
-            if len(result_list) >= 6:
+            # API list တွင် အသစ်ဆုံးမှ အဟောင်းသို့ စဉ်ထားသည် (index 0 သည် လက်ရှိပွဲ၊ index တက်လေ အဟောင်းဖြစ်လေ)
+            # ပုံအရ 0 သို့မဟုတ် 5 ကျလာပါက၊ API တွင် index 0 က လက်ရှိ 0/5 ဖြစ်နေမည်ဆိုလျှင် 
+            # သူ့အောက်ဘက် (အဟောင်းဘက် / အောက်နားက ၅ ပွဲ) ကို ယူရန် index များကို အောက်ပါအတိုင်း ညှိရပါမည်။
+            # ဥပမာ: index 1 မှ 5 သို့မဟုတ် အောက်ဘက်ရှိ ၅ ပွဲ
+            if len(result_list) >= 10:
                 latest_item = result_list[0]
                 current_issue = latest_item.get("issueNumber")
                 
@@ -109,7 +101,6 @@ def check_and_process():
                     current_num = int(latest_item.get("number"))
                     actual_outcome = "BIG" if current_num >= 5 else "SMALL"
                     
-                    # 🏆 Win / Lose စစ်ဆေးခြင်း Logic
                     win_status_str = ""
                     if current_prediction is not None:
                         if actual_outcome == current_prediction:
@@ -119,21 +110,23 @@ def check_and_process():
                         else:
                             total_loses += 1
                             current_lose_streak += 1
-                            # Max Lose တိုးသွားပါက Update လုပ်မည်
                             if current_lose_streak > max_lose_streak:
                                 max_lose_streak = current_lose_streak
                             win_status_str = f"❌ **LOSE** (Lose Streak: {current_lose_streak})"
 
-                    # 💡 0 နှင့် 5 ထွက်လာလျှင် အရင် ၅ ခု၏ Pattern ကို B/S ဖြင့် ဖမ်းယူခြင်း
+                    # 💡 0 နှင့် 5 ထွက်လာလျှင် ပုံမှာပြထားသကဲ့သို့ အောက်ဘက်ရှိ ၅ ပွဲ၏ Pattern ကို ယူခြင်း
                     pattern_text = ""
                     if current_num == 0 or current_num == 5:
-                        prev_five = result_list[1:6]
+                        # API စာရင်းအရ index 0 သည် လက်ရှိ 0 သို့မဟုတ် 5 ဖြစ်နေပါက 
+                        # သူ့အောက်ဘက်ရှိ ၅ ပွဲမှာ index 1 မှ 5 (သို့မဟုတ် လိုအပ်သလို အောက်ဘက်အစဉ်လိုက်) ဖြစ်ပါသည်။
+                        # ပုံပါအတိုင်း 0 ရဲ့ အောက်ဘက်ရှိ ၅ ပွဲကို ယူရန်:
+                        below_five = result_list[1:6]
                         p_list = []
-                        for item in prev_five:
+                        for item in below_five:
                             num = int(item.get("number"))
                             p_list.append("B" if num >= 5 else "S")
                         pattern_str = "".join(p_list)
-                        pattern_text = f"\n🎯 **PATTERN (0 or 5):** `{pattern_str}`"
+                        pattern_text = f"\n🎯 **PATTERN (0/5 Below):** `{pattern_str}`"
 
                     recent_outcomes.append(actual_outcome)
                     if len(recent_outcomes) > 15:
@@ -141,10 +134,8 @@ def check_and_process():
 
                     server_time = resp.get("serviceNowTime", "").split(' ')[-1]
                     
-                    # Trend ငြိမ်မှု ရှိမရှိ စစ်ဆေးခြင်း
                     is_currently_stable, trend_detail, next_pred = analyze_market_trend(recent_outcomes)
 
-                    # Trend စတင်ငြိမ်သွားသည့်အချိန် Telegram သို့ Message ပို့ခြင်း
                     if is_currently_stable and not last_logged_trend_state:
                         current_prediction = next_pred
                         msg = (f"🟢 **STABLE TREND DETECTED** 🟢\n"
@@ -153,7 +144,7 @@ def check_and_process():
                                f"🎰 **Issue:** `{current_issue}`\n"
                                f"📊 **Trend ပုံစံ:** `{trend_detail}`\n"
                                f"🎲 **ရလဒ်:** `{current_num}` ({actual_outcome})\n"
-                               f"🔮 **နောက်ပွဲခန့်မှန်းချက်:** `{next_pred}`\n"
+                               f"🔮 **ခန့်မှန်းချက် (Prediction):** `{next_pred}` 👈\n"
                                f"{pattern_text}\n"
                                f"━━━━━━━━━━━━━━━━━━━━\n"
                                f"🏆 **Wins:** `{total_wins}` | ❌ **Loses:** `{total_loses}`\n"
@@ -162,10 +153,10 @@ def check_and_process():
                         send_msg(msg)
                         last_logged_trend_state = True
                     elif is_currently_stable and last_logged_trend_state:
-                        # Trend ငြိမ်နေစဉ် ပွဲစဉ်တိုင်း၏ Win/Lose ရလဒ် ပို့ပေးခြင်း
-                        msg = (f"🎰 **Issue:** `{current_issue}` | **ရလဒ်:** `{current_num}` ({actual_outcome})\n"
+                        msg = (f"⏱️ **အချိန်:** `{server_time}`\n"
+                               f"🎰 **Issue:** `{current_issue}` | **ရလဒ်:** `{current_num}` ({actual_outcome})\n"
                                f"{win_status_str}\n"
-                               f"🔮 **နောက်ပွဲခန့်မှန်းချက်:** `{next_pred}`\n"
+                               f"🔮 **ခန့်မှန်းချက် (Prediction):** `{next_pred}` 👈\n"
                                f"{pattern_text}\n"
                                f"━━━━━━━━━━━━━━━━━━━━\n"
                                f"🏆 **Wins:** `{total_wins}` | ❌ **Loses:** `{total_loses}` | 🔥 **Max Lose:** `{max_lose_streak}`")
@@ -184,11 +175,8 @@ def realtime_loop():
     print("AZBT Live Trend Monitor Active...")
     while True:
         check_and_process()
-        time.sleep(1)
+        time.sleep(0.5)
 
-# =====================================================================
-# 5. RUN
-# =====================================================================
 Thread(target=realtime_loop, daemon=True).start()
 
 if __name__ == "__main__":
