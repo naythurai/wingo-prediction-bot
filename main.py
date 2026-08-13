@@ -88,7 +88,7 @@ def check_and_process():
         
         if response.status_code == 200 and resp.get("code") == 0 and resp.get("data"):
             result_list = resp["data"].get("list", [])
-            if len(result_list) > 0:
+            if len(result_list) >= 6: # လုံလောက်သော အချက်အလက်ရှိရန် အနည်းဆုံး ၆ ခု လိုအပ်သည် (ယခုထွက် + အရင် ၅ ခု)
                 latest_item = result_list[0]
                 current_issue = latest_item.get("issueNumber")
                 
@@ -96,6 +96,24 @@ def check_and_process():
                     current_num = int(latest_item.get("number"))
                     actual_outcome = "BIG" if current_num >= 5 else "SMALL"
                     
+                    # 💡 0 နှင့် 5 ထွက်လာခြင်း ရှိမရှိ စစ်ဆေးပြီး အရင် ၅ ခုရဲ့ Pattern ကို ယူခြင်း
+                    special_pattern_msg = ""
+                    if current_num == 0 or current_num == 5:
+                        # result_list[1] မှစတင်ပြီး အရင် ၅ ခုကို ယူမည် (index 1 to 5)
+                        previous_five_items = result_list[1:6]
+                        pattern_list = []
+                        for item in previous_five_items:
+                            num = int(item.get("number"))
+                            # B = BIG, S = SMALL အနေဖြင့် အတိုကောက်ယူရန် (သို့မဟုတ် စာသားအပြည့်လည်း သုံးနိုင်သည်)
+                            p_out = "B" if num >= 5 else "S"
+                            pattern_list.append(p_out)
+                        
+                        # စာသားပုံစံ ဖန်တီးခြင်း (ဥပမာ: S, S, B, B, S သို့မဟုတ် SS BBS)
+                        pattern_str = "".join(pattern_list)
+                        special_pattern_msg = (f"\n🎯 **SPECIAL ZERO/FIVE ALERT!** 🎯\n"
+                                               f"🔢 နံပါတ် **{current_num}** ကျလာပါသည်!\n"
+                                               f"📋 **အရင် ၅ ခု Pattern:** `{pattern_str}`\n")
+
                     recent_outcomes.append(actual_outcome)
                     if len(recent_outcomes) > 15:
                         recent_outcomes.pop(0)
@@ -113,11 +131,13 @@ def check_and_process():
                                f"🎰 **Issue:** `{current_issue}`\n"
                                f"📊 **Trend ပုံစံ:** `{trend_detail}`\n"
                                f"🎲 **နောက်ဆုံးထွက်ရလဒ်:** `{current_num}` ({actual_outcome})\n"
+                               f"{special_pattern_msg}"
                                f"━━━━━━━━━━━━━━━━━━━━")
                         send_msg(msg)
                         last_logged_trend_state = True
                     elif not is_currently_stable:
                         last_logged_trend_state = False
+                        # အကယ်၍ Trend မငြိမ်ဘဲ 0 သို့မဟုတ် 5 သက်သက် ထွက်လာရင်တောင် Alert ပို့ချင်ရင် ဒီအောက်မှာ ထည့်လို့ရပါတယ်။
 
                     last_checked_issue = current_issue
 
