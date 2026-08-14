@@ -15,7 +15,7 @@ def home():
     return "AZBT LIVE TREND MONITOR ACTIVE", 200
 
 # =====================================================================
-# 2. CONFIGURATION & TOKENS
+# 2. CONFIGURATION & TOKENS (UPDATED API DATA)
 # =====================================================================
 TOKEN = "8877327172:AAEJ5BHMEHRm82a4gBBRkaRmkSmn_IFl7LY"
 CHAT_ID = "5491984866"
@@ -23,6 +23,7 @@ GROUP_ID = "-1003803779601"
 
 TARGET_URL = "https://api.bigwinqaz.com/api/webapi/GetNoaverageEmerdList"
 
+# 🔑 Updated Authorization Token & Payload Parameters
 AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzg2NjY0NTU2IiwibmJmIjoiMTc4NjY2NDU1NiIsImV4cGlyYXRpb24iOiI4LzE0LzIwMjYgNjo0MjozNiBBTSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFjY2Vzc19Ub2tlbiIsIlVzZXJJZCI6IjYwNTYzMiIsIlVzZXJOYW1lIjoiOTU5OTY2NTAyNjk1IiwiVXNlclBob3RvIjoiMSIsIm5pY2tOYW1lIjoiTWVtYmVyTk5HQ0FLWk4iLCJBbW91bnQiOiIzLjQwIiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiI4LzE0LzIwMjYgNjoxMjozNiBBTSIsImxvZ2luSVBBZGRyZXNzIjoiODIuMjEuODQuMjA2IiwiRGJOdW1iZXIiOiIwIiwiSXN2YWxpZGF0b3IiOiIwIiwiS2V5Q29kZSI6IjE4MyIsIlRva2VuVHlwZSI6IkFjY2Vzc19Ub2tlbiIsIlBob25lVHlwZSI6IjEiLCJVc2VyVHlwZSI6IjAiLCJVc2VyTmFtZTIiOiIiLCJpc3MiOiJqd3RJc3N1ZXIiLCJhdWQiOiJsb3R0ZXJ5VGlja2V0In0.lBJsGFt9fAWyNGeN_835KPh3hO8Kkqc7UrVhpdMF1ZI"
 
 bot = telebot.TeleBot(TOKEN)
@@ -73,13 +74,14 @@ def check_and_process():
     global last_checked_issue, recent_outcomes, last_logged_trend_state
     global current_prediction, total_wins, total_loses, current_lose_streak, max_lose_streak
     
+    # 🔑 Updated random and signature from latest request data
     payload = {
         "pageSize": 10,
         "pageNo": 1,
         "typeId": 30,
         "language": 7,
-        "random": "2ab8f93cb0754e0eac87b3b3edf25558",
-        "signature": "675E8126B88246F5D87DCE843D034636",
+        "random": "6f2c1e77e8154e25b0b99a4187802626",
+        "signature": "1D68DDF0F6AFC82431F27B43D8865147",
         "timestamp": int(time.time())
     }
     
@@ -89,10 +91,6 @@ def check_and_process():
         
         if response.status_code == 200 and resp.get("code") == 0 and resp.get("data"):
             result_list = resp["data"].get("list", [])
-            # API list တွင် အသစ်ဆုံးမှ အဟောင်းသို့ စဉ်ထားသည် (index 0 သည် လက်ရှိပွဲ၊ index တက်လေ အဟောင်းဖြစ်လေ)
-            # ပုံအရ 0 သို့မဟုတ် 5 ကျလာပါက၊ API တွင် index 0 က လက်ရှိ 0/5 ဖြစ်နေမည်ဆိုလျှင် 
-            # သူ့အောက်ဘက် (အဟောင်းဘက် / အောက်နားက ၅ ပွဲ) ကို ယူရန် index များကို အောက်ပါအတိုင်း ညှိရပါမည်။
-            # ဥပမာ: index 1 မှ 5 သို့မဟုတ် အောက်ဘက်ရှိ ၅ ပွဲ
             if len(result_list) >= 10:
                 latest_item = result_list[0]
                 current_issue = latest_item.get("issueNumber")
@@ -114,12 +112,9 @@ def check_and_process():
                                 max_lose_streak = current_lose_streak
                             win_status_str = f"❌ **LOSE** (Lose Streak: {current_lose_streak})"
 
-                    # 💡 0 နှင့် 5 ထွက်လာလျှင် ပုံမှာပြထားသကဲ့သို့ အောက်ဘက်ရှိ ၅ ပွဲ၏ Pattern ကို ယူခြင်း
+                    # 💡 0 နှင့် 5 ထွက်လာလျှင် အောက်ဘက်ရှိ ၅ ပွဲ၏ Pattern ကို ယူခြင်း
                     pattern_text = ""
                     if current_num == 0 or current_num == 5:
-                        # API စာရင်းအရ index 0 သည် လက်ရှိ 0 သို့မဟုတ် 5 ဖြစ်နေပါက 
-                        # သူ့အောက်ဘက်ရှိ ၅ ပွဲမှာ index 1 မှ 5 (သို့မဟုတ် လိုအပ်သလို အောက်ဘက်အစဉ်လိုက်) ဖြစ်ပါသည်။
-                        # ပုံပါအတိုင်း 0 ရဲ့ အောက်ဘက်ရှိ ၅ ပွဲကို ယူရန်:
                         below_five = result_list[1:6]
                         p_list = []
                         for item in below_five:
